@@ -227,7 +227,7 @@ namespace gcommon
 		if (m_printMutex == NULL)
 		{
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)color);
-			tcout << out_str;
+			tcout << out_str << ends;
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)PRINT_COLOR::DARK_WHITE); // 默认白色
 		}
 		else
@@ -236,7 +236,7 @@ namespace gcommon
 			if (WaitForSingleObject(m_printMutex, MUTEX_TIMEOUT) == 0)
 			{
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)color);
-				tcout << out_str;
+				tcout << out_str << ends;
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)PRINT_COLOR::DARK_WHITE);
 			}
 			ReleaseMutex(m_printMutex);// 释放打印信号量

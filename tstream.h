@@ -1,7 +1,9 @@
 #pragma once
+#include <sstream>
 #include <iostream>
 #include <fstream>
 #include <tchar.h>
+#include <regex>
 
 using namespace std;
 
@@ -31,7 +33,7 @@ namespace gcommon
 	typedef basic_ifstream<wchar_t, char_traits<wchar_t> > tifstream;
 	typedef basic_ofstream<wchar_t, char_traits<wchar_t> > tofstream;
 	typedef basic_fstream<wchar_t, char_traits<wchar_t> > tfstream;
-
+	typedef basic_regex<wchar_t> tregex;
 	
 
 #else
@@ -57,6 +59,7 @@ namespace gcommon
 	typedef basic_ifstream<char, char_traits<char> > tifstream;
 	typedef basic_ofstream<char, char_traits<char> > tofstream;
 	typedef basic_fstream<char, char_traits<char> > tfstream;
+	typedef basic_regex<char> tregex;
 
 #endif
 

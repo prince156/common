@@ -381,12 +381,12 @@ namespace gcommon
 		return retData;
 	}
 
-	static vector<string> SplitString(const string& str, const char ch)
+	static vector<tstring> SplitString(const tstring& str, const TCHAR ch)
 	{
-		vector<string> strs;
+		vector<tstring> strs;
 		int start = 0;
 		int pos = str.find(ch);
-		while (pos != string::npos)
+		while (pos != tstring::npos)
 		{
 			strs.push_back(str.substr(start, pos - start));
 			start = pos + 1;
@@ -394,6 +394,24 @@ namespace gcommon
 		}
 		strs.push_back(str.substr(start, str.length() - start));
 		return strs;
+	}
+
+	static void TrimString(tstring& str, const TCHAR ch)
+	{
+		size_t delch = tstring::npos;
+		while ((delch = str.find(ch)) == 0)
+			str.erase(delch, 1);
+
+		delch = str.rfind(ch);
+		while ((delch = str.rfind(ch)) == str.length() - 1)
+			str.erase(delch, 1);
+	}
+
+	static void RemoveAllChar(tstring& str, const TCHAR ch)
+	{
+		size_t delch = tstring::npos;
+		while ((delch = str.find(ch)) != tstring::npos)
+			str.erase(delch, 1);
 	}
 
 	static wstring StringToWString(const string& str)

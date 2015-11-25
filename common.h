@@ -396,7 +396,7 @@ namespace gcommon
 		return strs;
 	}
 
-	static void TrimString(tstring& str, const TCHAR ch)
+	static tstring& TrimString(tstring& str, const TCHAR ch = ' ')
 	{
 		size_t delch = tstring::npos;
 		while ((delch = str.find(ch)) == 0)
@@ -405,6 +405,8 @@ namespace gcommon
 		delch = str.rfind(ch);
 		while ((delch = str.rfind(ch)) == str.length() - 1)
 			str.erase(delch, 1);
+
+		return str;
 	}
 
 	static void RemoveAllChar(tstring& str, const TCHAR ch)

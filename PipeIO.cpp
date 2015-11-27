@@ -67,7 +67,7 @@ bool CPipeIO::CreatePipe(const tstring& pipeName)
 	secAttrib.bInheritHandle= true;
 	secAttrib.nLength= sizeof(SECURITY_ATTRIBUTES);
 	secAttrib.lpSecurityDescriptor= &sd;	
-	m_hPipe = CreateNamedPipe( m_PipeName.data(), 
+	m_hPipe = CreateNamedPipe( m_PipeName.c_str(), 
 		PIPE_ACCESS_DUPLEX,
 		PIPE_READMODE_MESSAGE|PIPE_TYPE_MESSAGE|PIPE_WAIT,
 		1,
@@ -102,7 +102,7 @@ bool CPipeIO::OpenPipe(const tstring& pipeName)
 	m_PipeName = pipeName;
 
 	// 打开命名管道		
-	m_hPipe = CreateFile( m_PipeName.data(),
+	m_hPipe = CreateFile( m_PipeName.c_str(),
 		GENERIC_READ|GENERIC_WRITE,0,NULL,
 		OPEN_EXISTING,0,NULL);
 	if(m_hPipe == INVALID_HANDLE_VALUE)
@@ -237,7 +237,7 @@ void CPipeIO::Wait(uint32_t dwTimeout)
 {
 	if (m_bInit)
 	{		
-		WaitNamedPipe(m_PipeName.data(),dwTimeout);
+		WaitNamedPipe(m_PipeName.c_str(),dwTimeout);
 	}
 }
 

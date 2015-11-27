@@ -295,7 +295,7 @@ namespace gcommon
 		if (ap[0] != 0)
 		{
 			TCHAR* msg_tmp = new TCHAR[format.length() + 1024];
-			_vstprintf_s(msg_tmp, format.length() + 1024, format.data(), ap);
+			_vstprintf_s(msg_tmp, format.length() + 1024, format.c_str(), ap);
 			m_msg.assign(msg_tmp);
 			delete[] msg_tmp;
 		}
@@ -564,8 +564,8 @@ namespace gcommon
 
 		TCHAR* ct = new TCHAR[format.length() + 4];
 		
-		_tcscpy_s(ct, format.length() + 4, format.data());
-		GetDateFormat(0, 0, NULL, format.data(), ct, format.length() + 4);
+		_tcscpy_s(ct, format.length() + 4, format.c_str());
+		GetDateFormat(0, 0, NULL, format.c_str(), ct, format.length() + 4);
 		GetTimeFormat(0, 0, NULL, ct, ct, format.length() + 4);
 
 		formatMsg(PRINT_TYPE::RAW, TEXT("%s\n"), ct);

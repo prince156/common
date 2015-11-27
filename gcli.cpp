@@ -111,7 +111,7 @@ void GCLI::DispatchCommand(const tstring& command)
 
 	// 调试信息
 	//_tprintf_s(TEXT("debug: "));
-	//_tprintf_s(command.data());
+	//_tprintf_s(command.c_str());
 	//_tprintf_s(TEXT("\n"));
 
 	// 确定命令
@@ -184,7 +184,7 @@ void GCLI::MainLoop()
 		// 判断是否初始化
 		if (bInit)
 		{
-			_tprintf_s(m_prompt.data());
+			_tprintf_s(m_prompt.c_str());
 			pos = 0;
 			memset(cmd, 0, MAX_CMD_LEN + 1);
 			bInit = false;
@@ -206,7 +206,7 @@ void GCLI::MainLoop()
 
 				while (pos--)
 					_tprintf_s(TEXT("\b \b"));
-				_tprintf_s(cmdAss->strCMD.data());
+				_tprintf_s(cmdAss->strCMD.c_str());
 				pos = cmdAss->strCMD.length();
 			}
 			continue;
@@ -215,7 +215,7 @@ void GCLI::MainLoop()
 		// 将联想命令拷贝到cmd，清空联想
 		if (cmdAss)
 		{
-			memcpy(cmd, cmdAss->strCMD.data(), pos);
+			memcpy(cmd, cmdAss->strCMD.c_str(), pos);
 			delete cmdAss;
 			cmdAss = NULL;
 		}
@@ -352,7 +352,7 @@ void GCLI::MainLoop()
 				while (pos--)
 					_tprintf_s(TEXT("\b \b"));
 				memset(cmd, 0, MAX_CMD_LEN + 1);
-				_tcscpy_s(cmd, strTmp.length()+1, strTmp.data());
+				_tcscpy_s(cmd, strTmp.length()+1, strTmp.c_str());
 				_tprintf_s(cmd);
 				pos = strTmp.length();
 			}
@@ -474,12 +474,12 @@ void GCLI::ListAssociat(const tstring& cmd)
 		if (assCount>1 && strFirst == psh->strCMD)
 			break;
 
-		_tprintf_s(TEXT("  %-10s  %s\n"), psh->strCMD.data(), psh->strToolTip.data());
+		_tprintf_s(TEXT("  %-10s  %s\n"), psh->strCMD.c_str(), psh->strToolTip.c_str());
 	}
 	if (assCount>0)
 	{
-		_tprintf_s(m_prompt.data());
-		_tprintf_s(cmd.data());
+		_tprintf_s(m_prompt.c_str());
+		_tprintf_s(cmd.c_str());
 	}
 }
 
@@ -505,7 +505,7 @@ void GCLI::ShowHelp()
 	_tprintf_s(TEXT("This is DEFAULT help info:\n"));
 	for each (auto var in m_handlerMap)
 	{
-		_tprintf_s(TEXT("  %-10s  %s\n"), var.first.data(), var.second.strToolTip.data());
+		_tprintf_s(TEXT("  %-10s  %s\n"), var.first.c_str(), var.second.strToolTip.c_str());
 	}
 }
 

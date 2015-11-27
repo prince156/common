@@ -331,14 +331,14 @@ namespace gcommon
 	*   2014-12-17,littledj: create
 	*   2015-04-23,littledj: 对char和wchar都兼容，增加参数len
 	********************************************************************/
-	static char* wtoa(const TCHAR* data, int len = 0)
+	static char* wtoa(const wchar_t* data, int len = 0)
 	{
 		if (data == NULL)
 		{
 			return NULL;
 		}
 
-		int data_len = _tcslen(data);
+		int data_len = wcslen(data);
 		if (len) data_len = len;
 		char* retData = new char[data_len + 1];
 		for (int i = 0; i < data_len; i++)

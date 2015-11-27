@@ -35,14 +35,14 @@ namespace gcommon
 	typedef struct _thread_para
 	{
 		tstring threadName;		// 线程名称
-		uint32_t debugLevel;	// 调试信息显示级别
-		PRINT_TARGET printTarget;	// 线程消息打印输出选择
+		uint32_t debugLevel = 0;	// 调试信息显示级别
+		PRINT_TARGET printTarget = PRINT_TARGET::SCREEN;	// 线程消息打印输出选择
 		tstring logfile;			// 日志文件全路径
-		bool enableColor;		// 允许彩色输出
+		bool enableColor = true;	// 允许彩色输出
 
-		THREAD_CONTROL control; // 由构造函数设置，对线程进行控制
-		THREAD_STATE state;		// 由构造函数设置，线程状态
-		void* current;			// 由构造函数设置，当前线程所在类
+		THREAD_CONTROL control = THREAD_CONTROL::START; // 由构造函数设置，对线程进行控制
+		THREAD_STATE state = THREAD_STATE::CREATE;		// 由构造函数设置，线程状态
+		void* current = NULL;			// 由构造函数设置，当前线程所在类
 	}THREAD_PARA, *PTHREAD_PARA;
 
 #pragma pack(pop)

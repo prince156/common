@@ -15,7 +15,7 @@ using namespace gcommon;
 #endif
 
 #endif
-
+ 
 namespace UnitTest_common
 {		
 	TEST_CLASS(UnitTest_ByteArray)

@@ -144,6 +144,7 @@ namespace gcommon
 			return;
 
 		this->m_writePos = position;
+		this->setSize(this->m_writePos);
 	}
 
 	void ByteBuffer::setReadPosition(uint32_t position)
@@ -158,6 +159,7 @@ namespace gcommon
 	{
 		this->m_readPos = 0;
 		this->m_writePos = 0;
+		this->setSize(0);
 	}
 
 	void ByteBuffer::skip(uint32_t bytes)

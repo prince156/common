@@ -278,6 +278,8 @@ DWORD WINAPI GThread::MainLoop(LPVOID para)
 
 		// 处理用户自定义的事务
 		threadclass->ThreadMain();
+		if (threadpara->state != THREAD_STATE::RUNNING)
+			break;
 		Sleep(1);
 	}
 

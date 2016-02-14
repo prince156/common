@@ -9,6 +9,7 @@ namespace gcommon
 {
 	enum class THREAD_CONTROL
 	{
+		UNKNOWN,
 		START,		// 开始执行		
 		STOP,		// 停止
 		SUSPEND,	// 暂停
@@ -18,13 +19,11 @@ namespace gcommon
 	// 线程或模块的运行状态常量,及其名称
 	enum class THREAD_STATE
 	{
-		NONE,				// 其他
+		UNKNOWN,			// 其他
 		CREATE,				// 创建
 		INIT,				// 初始化
 		RUNNING,			// 正常执行
 		SUSPENDING,			// 挂起
-		SUSPEND_WARNING,	// 因告警挂起
-		SUSPEND_ERROR,		// 因错误挂起
 		STOPPED,			// 已停止
 		SLEEPING			// 睡眠中
 	};
@@ -40,8 +39,8 @@ namespace gcommon
 		tstring logfile;			// 日志文件全路径
 		bool enableColor = true;	// 允许彩色输出
 
-		THREAD_CONTROL control = THREAD_CONTROL::START; // 由构造函数设置，对线程进行控制
-		THREAD_STATE state = THREAD_STATE::CREATE;		// 由构造函数设置，线程状态
+		//THREAD_CONTROL control = THREAD_CONTROL::START; // 由构造函数设置，对线程进行控制
+		//THREAD_STATE state = THREAD_STATE::CREATE;		// 由构造函数设置，线程状态
 		void* current = NULL;			// 由构造函数设置，当前线程所在类
 	}THREAD_PARA, *PTHREAD_PARA;
 
@@ -50,17 +49,22 @@ namespace gcommon
 	class GThread
 	{
 	public:
+		GThread();
 		GThread(PTHREAD_PARA para);
 		virtual ~GThread();
 
 	private:
 		PTHREAD_PARA m_para;
-		HANDLE m_hThread;
+		HANDLE m_hThread = NULL;
 
 	public:
 		GLogger2 m_glogger;
+		THREAD_CONTROL m_control = THREAD_CONTROL::UNKNOWN;
+		THREAD_STATE m_state = THREAD_STATE::UNKNOWN;
 
 	public:
+		virtual void SetPara(PTHREAD_PARA para);
+
 		BOOL Run();
 		BOOL Stop();
 		BOOL Suspend();

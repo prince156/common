@@ -80,6 +80,10 @@ namespace gcommon
 		void setTarget(PRINT_TARGET target);
 		// 获取当前信息
 		tstring getLastMsg();
+		// 获取错误信息
+		tstring getLastError();
+		// 获取警告信息
+		tstring getLastWarning();
 
 		// 设置名称
 		void setHeader(const tstring header = TEXT("##"));
@@ -155,6 +159,8 @@ namespace gcommon
 
 		PRINT_TARGET m_wpTarget;// 输出目标
 		tstring m_msg;			// 当前消息
+		tstring m_errormsg;		// 错误消息
+		tstring m_warningmsg;	// 警告消息
 		tstring m_msgPool[MAX_POOL_SIZE];	// 消息池
 		int m_msgPoolCount;		// 消息池中的消息数量
 		int m_msgPoolPos;		// 消息池当前位置

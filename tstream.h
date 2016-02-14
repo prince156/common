@@ -18,6 +18,7 @@ namespace gcommon
 #define tcout wcout
 #define tcerr wcerr
 #define tclog wclog
+#define to_tstring to_wstring
 
 	typedef wstring tstring;
 	typedef basic_ios<wchar_t, char_traits<wchar_t> > tios;
@@ -44,6 +45,7 @@ namespace gcommon
 #define tcout cout
 #define tcerr cerr
 #define tclog clog
+#define to_tstring to_string
 
 	typedef string tstring;
 	typedef basic_ios<char, char_traits<char> > tios;

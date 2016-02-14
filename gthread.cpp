@@ -6,8 +6,28 @@
 
 using namespace gcommon;
 
+GThread::GThread()
+{
+	m_state = THREAD_STATE::UNKNOWN;
+	m_control = THREAD_CONTROL::UNKNOWN;
+}
+
 GThread::GThread(PTHREAD_PARA para)
 {
+	SetPara(para);
+}
+
+GThread::~GThread()
+{
+	if (m_state != THREAD_STATE::STOPPED)
+	{
+		Stop();
+	}
+}
+
+void GThread::SetPara(PTHREAD_PARA para)
+{
+	
 	m_para = para;
 	if (m_para == NULL)
 	{
@@ -20,9 +40,9 @@ GThread::GThread(PTHREAD_PARA para)
 	else if (m_para->threadName.empty())
 	{
 		m_para->threadName = TEXT("");
-	}	
-	m_para->state = THREAD_STATE::NONE;
-	m_para->control = THREAD_CONTROL::START;
+	}
+	m_state = THREAD_STATE::UNKNOWN;
+	m_control = THREAD_CONTROL::UNKNOWN;
 	m_para->current = this;
 
 	m_hThread = NULL;
@@ -31,14 +51,6 @@ GThread::GThread(PTHREAD_PARA para)
 	m_glogger.setLogFile(m_para->logfile);
 	m_glogger.setTarget(m_para->printTarget);
 	m_glogger.enableColor(m_para->enableColor);
-}
-
-GThread::~GThread()
-{
-	if (m_para->state != THREAD_STATE::STOPPED)
-	{
-		Stop();
-	}
 }
 
 BOOL GThread::Run()
@@ -54,7 +66,7 @@ BOOL GThread::Run()
 	// 创建线程
 	m_glogger.debug1(TEXT("create thread ..."));
 	DWORD threadID;
-	m_para->control = THREAD_CONTROL::START;
+	m_control = THREAD_CONTROL::START;
 	m_hThread = CreateThread(NULL, 0, MainLoop, m_para, 0, &threadID);
 	if (m_hThread == NULL)
 	{
@@ -67,8 +79,8 @@ BOOL GThread::Run()
 	// 线程正常启动判断过程
 	m_glogger.debug1(TEXT("start thread, wait thread's response ..."));
 	DWORD nTime = IDLE_TIME;
-	while (m_para->state != THREAD_STATE::RUNNING && 
-		m_para->state != THREAD_STATE::SUSPENDING)
+	while (m_state != THREAD_STATE::RUNNING && 
+		m_state != THREAD_STATE::SUSPENDING)
 	{
 		if (nTime > THREAD_START_TIMEOUT)	// 超时判断
 		{
@@ -93,10 +105,10 @@ BOOL GThread::Stop()
 	}
 
 	m_glogger.debug1(TEXT("stopping thread, wait thread's response ..."));
-	m_para->control = THREAD_CONTROL::STOP;
+	m_control = THREAD_CONTROL::STOP;
 	Sleep(IDLE_TIME);
 	DWORD nTime = IDLE_TIME;
-	while (m_para->state != THREAD_STATE::STOPPED)
+	while (m_state != THREAD_STATE::STOPPED)
 	{
 		if (nTime > THREAD_STOP_TIMEOUT)	// 超时判断
 		{
@@ -131,15 +143,15 @@ BOOL GThread::Suspend()
 	}
 
 	m_glogger.debug1(TEXT("suspend thread, wait thread's response ..."));
-	m_para->control = THREAD_CONTROL::SUSPEND;
+	m_control = THREAD_CONTROL::SUSPEND;
 	Sleep(IDLE_TIME);
 	DWORD nTime = IDLE_TIME;
-	while (m_para->state != THREAD_STATE::SUSPENDING)
+	while (m_state != THREAD_STATE::SUSPENDING)
 	{
 		if (nTime > THREAD_STOP_TIMEOUT)	// 超时判断
 		{
 			m_glogger.debug1(TEXT("thread response timeout"));
-			m_para->control = THREAD_CONTROL::CONTINUE;
+			m_control = THREAD_CONTROL::CONTINUE;
 			return FALSE;
 		}
 		Sleep(IDLE_TIME);
@@ -158,15 +170,15 @@ BOOL GThread::Continue()
 	}
 
 	m_glogger.debug1(TEXT("continue thread, wait thread's response ..."));
-	m_para->control = THREAD_CONTROL::CONTINUE;
+	m_control = THREAD_CONTROL::CONTINUE;
 	Sleep(IDLE_TIME);
 	DWORD nTime = IDLE_TIME;
-	while (m_para->state != THREAD_STATE::RUNNING)
+	while (m_state != THREAD_STATE::RUNNING)
 	{
 		if (nTime > THREAD_STOP_TIMEOUT)	// 超时判断
 		{
 			m_glogger.debug1(TEXT("thread response timeout"));
-			m_para->control = THREAD_CONTROL::SUSPEND;
+			m_control = THREAD_CONTROL::SUSPEND;
 			return FALSE;
 		}
 		Sleep(IDLE_TIME);
@@ -180,7 +192,7 @@ tstring GThread::THREAD_STATE_NAME(THREAD_STATE state)
 {
 	switch (state)
 	{
-	case THREAD_STATE::NONE:
+	case THREAD_STATE::UNKNOWN:
 		return TEXT("<null>");
 	case THREAD_STATE::CREATE:
 		return TEXT("create");
@@ -190,10 +202,12 @@ tstring GThread::THREAD_STATE_NAME(THREAD_STATE state)
 		return TEXT("running");
 	case THREAD_STATE::SUSPENDING:
 		return TEXT("suspend");
-	case THREAD_STATE::SUSPEND_WARNING:
-		return TEXT("warning");
-	case THREAD_STATE::SUSPEND_ERROR:
-		return TEXT("error");
+	//case THREAD_STATE::WARNING:
+	//	return TEXT("warning");
+	//case THREAD_STATE::SUSPEND_WARNING:
+	//	return TEXT("warning");
+	//case THREAD_STATE::SUSPEND_ERROR:
+	//	return TEXT("error");
 	case THREAD_STATE::STOPPED:
 		return TEXT("stop");
 	case THREAD_STATE::SLEEPING:
@@ -207,7 +221,7 @@ tstring GThread::THREAD_STATE_IMG(THREAD_STATE state)
 {
 	switch (state)
 	{
-	case THREAD_STATE::NONE:
+	case THREAD_STATE::UNKNOWN:
 		return TEXT("??");
 	case THREAD_STATE::CREATE:
 		return TEXT("|>");
@@ -217,10 +231,12 @@ tstring GThread::THREAD_STATE_IMG(THREAD_STATE state)
 		return TEXT(">>");
 	case THREAD_STATE::SUSPENDING:
 		return TEXT("||");
-	case THREAD_STATE::SUSPEND_WARNING:
-		return TEXT(">!");
-	case THREAD_STATE::SUSPEND_ERROR:
-		return TEXT(">X");
+	//case THREAD_STATE::WARNING:
+	//	return TEXT(">!");
+	//case THREAD_STATE::SUSPEND_WARNING:
+	//	return TEXT(">!");
+	//case THREAD_STATE::SUSPEND_ERROR:
+	//	return TEXT(">X");
 	case THREAD_STATE::STOPPED:
 		return TEXT(">|");
 	case THREAD_STATE::SLEEPING:
@@ -234,43 +250,40 @@ DWORD WINAPI GThread::MainLoop(LPVOID para)
 {
 	PTHREAD_PARA threadpara = (PTHREAD_PARA)para;
 	GThread* threadclass = (GThread*)threadpara->current;
-	threadclass->m_glogger.info(TEXT("hello"));
+	threadclass->m_glogger.debug1(TEXT("hello"));
 
 	threadclass->m_glogger.debug1(TEXT("initializing ..."));
-	threadpara->state = THREAD_STATE::INIT;
+	threadclass->m_state = THREAD_STATE::INIT;
 	threadclass->m_glogger.debug1(TEXT("initializing done"));
 	
-	while (threadpara->control != THREAD_CONTROL::STOP)
+	threadclass->m_state = THREAD_STATE::RUNNING;
+	while (threadclass->m_control != THREAD_CONTROL::STOP)
 	{
 		// 处理父线程指令
-		switch (threadpara->control)
+		switch (threadclass->m_control)
 		{
 		case THREAD_CONTROL::SUSPEND:			
-			if (threadpara->state != THREAD_STATE::SUSPENDING)
+			if (threadclass->m_state != THREAD_STATE::SUSPENDING)
 			{		
 				threadclass->m_glogger.info(TEXT("switch to suspend"));
-				threadpara->state = THREAD_STATE::SUSPENDING;
-			}
-			break;
-		case THREAD_CONTROL::START:			
-			if (threadpara->state != THREAD_STATE::RUNNING)
-			{
-				threadclass->m_glogger.info(TEXT("start to work"));
-				threadpara->state = THREAD_STATE::RUNNING;
+				threadclass->m_state = THREAD_STATE::SUSPENDING;
 			}
 			break;
 		case THREAD_CONTROL::CONTINUE:			
-			if (threadpara->state != THREAD_STATE::RUNNING)
+			if (threadclass->m_state == THREAD_STATE::SUSPENDING)
 			{				
 				threadclass->m_glogger.info(TEXT("continue to work"));
-				threadpara->state = THREAD_STATE::RUNNING;
+				threadclass->m_state = THREAD_STATE::RUNNING;
 			}
+			break;
+		case THREAD_CONTROL::STOP:
+			threadclass->m_state = THREAD_STATE::STOPPED;
 			break;
 		default:
 			break;
 		}
 
-		if (threadpara->state != THREAD_STATE::RUNNING)
+		if (threadclass->m_state != THREAD_STATE::RUNNING)
 		{
 			Sleep(IDLE_TIME);
 			continue;
@@ -278,12 +291,12 @@ DWORD WINAPI GThread::MainLoop(LPVOID para)
 
 		// 处理用户自定义的事务
 		threadclass->ThreadMain();
-		if (threadpara->state != THREAD_STATE::RUNNING)
-			break;
-		Sleep(1);
+		if (threadclass->m_state == THREAD_STATE::STOPPED)
+			break;		
+		//Sleep(1);
 	}
 
-	threadclass->m_glogger.info(TEXT("bye"));
-	threadpara->state = THREAD_STATE::STOPPED;
+	//threadclass->m_glogger.info(TEXT("bye"));
+	threadclass->m_state = THREAD_STATE::STOPPED;
 	return 0;
 }

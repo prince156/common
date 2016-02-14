@@ -179,6 +179,16 @@ namespace gcommon
 	{
 		return m_msg;
 	}
+	tstring GLogger2::getLastError()
+	{
+		return m_errormsg;
+	}
+	tstring GLogger2::getLastWarning()
+	{
+		if (!m_errormsg.empty())
+			return m_errormsg;
+		return m_warningmsg;
+	}
 
 	/********************************************************************
 	* [函数名]: output
@@ -188,9 +198,11 @@ namespace gcommon
 	********************************************************************/
 	void GLogger2::output(const tstring& msg, PRINT_COLOR color)
 	{
-		tstring out_str = m_msg;
+		tstring out_str;
 		if (!msg.empty())
 			out_str = msg;
+		else
+			out_str = m_msg;
 
 		// 判断是否输出到屏幕
 		if (m_wpTarget == PRINT_TARGET::SCREEN)
@@ -207,7 +219,7 @@ namespace gcommon
 		// 都输出
 		else if (m_wpTarget == PRINT_TARGET::BOTH)
 		{
-			output_screen(out_str);
+			output_screen(out_str, color);
 			output_file(out_str);
 		}
 	}
@@ -220,14 +232,16 @@ namespace gcommon
 	********************************************************************/
 	void GLogger2::output_screen(const tstring& msg, PRINT_COLOR color)
 	{
-		tstring out_str = m_msg;
+		tstring out_str;
 		if (!msg.empty())
 			out_str = msg;
+		else
+			out_str = m_msg;
 
 		if (m_printMutex == NULL)
 		{
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)color);
-			tcout << out_str << ends;
+			tcout << out_str ; // 请勿使用 << ends，否则导致下行多一个空格
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)PRINT_COLOR::DARK_WHITE); // 默认白色
 		}
 		else
@@ -236,7 +250,7 @@ namespace gcommon
 			if (WaitForSingleObject(m_printMutex, MUTEX_TIMEOUT) == 0)
 			{
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)color);
-				tcout << out_str << ends;
+				tcout << out_str ;
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)PRINT_COLOR::DARK_WHITE);
 			}
 			ReleaseMutex(m_printMutex);// 释放打印信号量
@@ -251,9 +265,11 @@ namespace gcommon
 	********************************************************************/
 	void GLogger2::output_file(const tstring& msg)
 	{
-		tstring out_str = m_msg;
+		tstring out_str;
 		if (!msg.empty())
 			out_str = msg;
+		else
+			out_str = m_msg;
 
 		if (m_logMutex == NULL)
 		{
@@ -389,7 +405,7 @@ namespace gcommon
 
 		// 保存当前消息
 		saveToMessagePool();
-
+		m_errormsg = m_msg;
 	}	
 
 	/********************************************************************
@@ -414,6 +430,8 @@ namespace gcommon
 
 		// 保存当前消息
 		saveToMessagePool();
+		m_warningmsg = m_msg;
+		m_errormsg = m_msg;
 	}
 
 	/********************************************************************
@@ -569,6 +587,7 @@ namespace gcommon
 		GetTimeFormat(0, 0, NULL, ct, ct, format.length() + 4);
 
 		formatMsg(PRINT_TYPE::RAW, TEXT("%s\n"), ct);
+		delete[] ct;
 
 		if (m_enableColor)
 			output(m_msg, m_defaultColor);

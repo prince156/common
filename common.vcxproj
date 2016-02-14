@@ -84,6 +84,7 @@
     <ClCompile Include="common.cpp" />
     <ClCompile Include="gcli.cpp" />
     <ClCompile Include="glogger2.cpp" />
+    <ClCompile Include="gmonitor.cpp" />
     <ClCompile Include="gthread.cpp" />
     <ClCompile Include="PipeIO.cpp" />
     <ClCompile Include="printable.cpp" />
@@ -95,6 +96,7 @@
     <ClInclude Include="common_net.h" />
     <ClInclude Include="gcli.h" />
     <ClInclude Include="glogger2.h" />
+    <ClInclude Include="gmonitor.h" />
     <ClInclude Include="gthread.h" />
     <ClInclude Include="PipeIO.h" />
     <ClInclude Include="printable.h" />

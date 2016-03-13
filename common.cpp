@@ -168,17 +168,18 @@ namespace gcommon
 
 	/********************************************************************
 	* [函数名]: random
-	* [描述]: 在[start,end)内(不包end, 最大0x7fff)获取一个随机整数,start>0
+	* [描述]: 在[start,end)内(不包end, 最大0xffffffff)获取一个随机整数,start>0
 	* [输入]:
 	*   start: 随机数开始位置
 	*   end: 随机数结束位置（不包括）
-	* [返回值]: int
+	* [返回值]: unsigned int
 	*   生成的随机数
 	* [修改记录]:
 	*   2013-11-17,littledj: create
 	*   2016-01-20,littledj: 优化srand参数
+	*   2016-03-13,littledj: 参数和返回值都改为无符号，增大范围
 	********************************************************************/
-	int random(int start, int end)
+	unsigned int random(unsigned int start, unsigned int end)
 	{
 		// 参数检查
 		if (start <0)
@@ -195,7 +196,17 @@ namespace gcommon
 			bFirst = false;
 		}
 
-		return (int)(start + (end - start)*rand()*1.0 / (RAND_MAX + 1.0));
+		int r1 = rand();
+		int r2 = rand();
+		int r3 = rand();
+		int r4 = rand();
+		int rr = (r1 & 0x000000ff) |
+			(r2 & 0x000000ff) << 8 |
+			(r3 & 0x000000ff) << 16 |
+			(r4 & 0x000000ff) << 24;
+		double rate = (end - start)*1.0 / (unsigned int)0xFFFFFFFF;
+		unsigned int delta = (unsigned int)(rate * (unsigned int)rr);
+		return start + delta;
 	}
 
 	/********************************************************************

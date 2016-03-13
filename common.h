@@ -36,7 +36,7 @@ namespace gcommon
 	int GetCurrentDirPath(TCHAR* &out);
 	TCHAR* inet_ltot(unsigned long ip);
 	unsigned long inet_ttol(const TCHAR* strIP);
-	int random(int start, int end);
+	unsigned int random(unsigned int start, unsigned int end);
 	char* wtoa(const wchar_t* data, int len = 0);
 	wchar_t* atow(const char* data, int len = 0);
 	vector<tstring> SplitString(const tstring& str, const TCHAR ch);

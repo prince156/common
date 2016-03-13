@@ -308,7 +308,7 @@ namespace gcommon
 	********************************************************************/
 	void GLogger2::formatMsg_v(const PRINT_TYPE type, const tstring& format, va_list ap)
 	{
-		if (ap[0] != 0)
+		if (format.find('%') != tstring::npos)
 		{
 			TCHAR* msg_tmp = new TCHAR[format.length() + 1024];
 			_vstprintf_s(msg_tmp, format.length() + 1024, format.c_str(), ap);

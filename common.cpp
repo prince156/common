@@ -462,10 +462,11 @@ namespace gcommon
 	/*   CString: 参数的字符串形式
 	/* 修改记录:
 	/*   2013-12-24,xiaogu: create
+	/*   2016-03-14,littledj: default可以为empty
 	/********************************************************************/
 	tstring GetConfigPara(tstring strConfigFilePath, tstring key, tstring default)
 	{
-		if (strConfigFilePath.empty() || key.empty() || default.empty())
+		if (strConfigFilePath.empty() || key.empty())
 			return tstring();
 
 		TCHAR szConfigValue[MAX_PATH + 1];

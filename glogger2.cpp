@@ -577,7 +577,7 @@ namespace gcommon
 		this->m_msg.clear();
 		if (format.empty())
 		{
-			format = TEXT("** yyyy-MM-dd hh:mm:ss **");
+			format = TEXT("** yyyy-MM-dd hh:mm:ss **\n");
 		}
 
 		TCHAR* ct = new TCHAR[format.length() + 4];
@@ -586,7 +586,7 @@ namespace gcommon
 		GetDateFormat(0, 0, NULL, format.c_str(), ct, format.length() + 4);
 		GetTimeFormat(0, 0, NULL, ct, ct, format.length() + 4);
 
-		formatMsg(PRINT_TYPE::RAW, TEXT("%s\n"), ct);
+		formatMsg(PRINT_TYPE::RAW, TEXT("%s"), ct);
 		delete[] ct;
 
 		if (m_enableColor)

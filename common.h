@@ -39,7 +39,7 @@ namespace gcommon
 	unsigned int random(unsigned int start, unsigned int end);
 	char* wtoa(const wchar_t* data, int len = 0);
 	wchar_t* atow(const char* data, int len = 0);
-	vector<tstring> SplitString(const tstring& str, const TCHAR ch);
+	vector<wstring> SplitString(const wstring& str, const wchar_t ch);
 	vector<string> SplitString(const string& str, const char ch);
 	tstring& TrimString(tstring& str, const TCHAR ch = ' ');
 	void RemoveAllChar(tstring& str, const TCHAR ch);

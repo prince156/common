@@ -362,12 +362,12 @@ namespace gcommon
 		return retData;
 	}
 
-	vector<tstring> SplitString(const tstring& str, const TCHAR ch)
+	vector<wstring> SplitString(const wstring& str, const wchar_t ch)
 	{
-		vector<tstring> strs;
+		vector<wstring> strs;
 		size_t start = 0;
 		size_t pos = str.find(ch);
-		while (pos != tstring::npos)
+		while (pos != wstring::npos)
 		{
 			strs.push_back(str.substr(start, pos - start));
 			start = pos + 1;

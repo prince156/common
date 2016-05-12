@@ -397,12 +397,12 @@ namespace gcommon
 		return strs;
 	}
 
-	tstring& TrimString(tstring& str, const TCHAR ch)
+	string& TrimString(string& str, const char ch)
 	{
 		if (str.empty() || str.size() == 0)
 			return str;
 
-		size_t delch = tstring::npos;
+		size_t delch = string::npos;
 		while ((delch = str.find(ch)) == 0)
 			str.erase(delch, 1);
 
@@ -416,10 +416,36 @@ namespace gcommon
 		return str;
 	}
 
-	void RemoveAllChar(tstring& str, const TCHAR ch)
+	wstring& TrimString(wstring& str, const wchar_t ch)
 	{
-		size_t delch = tstring::npos;
-		while ((delch = str.find(ch)) != tstring::npos)
+		if (str.empty() || str.size() == 0)
+			return str;
+
+		size_t delch = wstring::npos;
+		while ((delch = str.find(ch)) == 0)
+			str.erase(delch, 1);
+
+		if (str.empty() || str.size() == 0)
+			return str;
+
+		delch = str.rfind(ch);
+		while ((delch = str.rfind(ch)) == str.length() - 1)
+			str.erase(delch, 1);
+
+		return str;
+	}
+
+	void RemoveAllChar(string& str, const char ch)
+	{
+		size_t delch = string::npos;
+		while ((delch = str.find(ch)) != string::npos)
+			str.erase(delch, 1);
+	}
+
+	void RemoveAllChar(wstring& str, const wchar_t ch)
+	{
+		size_t delch = wstring::npos;
+		while ((delch = str.find(ch)) != wstring::npos)
 			str.erase(delch, 1);
 	}
 
@@ -464,19 +490,37 @@ namespace gcommon
 	/*   2013-12-24,xiaogu: create
 	/*   2016-03-14,littledj: default¿ÉÒÔÎªempty
 	/********************************************************************/
-	tstring GetConfigPara(tstring strConfigFilePath, tstring key, tstring default)
+	string GetConfigPara(string strConfigFilePath, string key, string default)
 	{
 		if (strConfigFilePath.empty() || key.empty())
-			return tstring();
+			return string();
 
-		TCHAR szConfigValue[MAX_PATH + 1];
+		char szConfigValue[MAX_PATH + 1];
 		szConfigValue[0] = 0;
-		GetPrivateProfileString(TEXT("config"), key.c_str(), default.c_str(),
+		GetPrivateProfileStringA("config", key.c_str(), default.c_str(),
 			szConfigValue, MAX_PATH, strConfigFilePath.c_str());
 
-		if (_tcslen(szConfigValue) > 0)
+		if (strlen(szConfigValue) > 0)
 		{
-			return tstring(szConfigValue);
+			return string(szConfigValue);
+		}
+		else
+			return default;
+	}
+
+	wstring GetConfigPara(wstring strConfigFilePath, wstring key, wstring default)
+	{
+		if (strConfigFilePath.empty() || key.empty())
+			return wstring();
+
+		wchar_t szConfigValue[MAX_PATH + 1];
+		szConfigValue[0] = 0;
+		GetPrivateProfileStringW(L"config", key.c_str(), default.c_str(),
+			szConfigValue, MAX_PATH, strConfigFilePath.c_str());
+
+		if (wcslen(szConfigValue) > 0)
+		{
+			return wstring(szConfigValue);
 		}
 		else
 			return default;

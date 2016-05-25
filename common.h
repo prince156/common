@@ -47,6 +47,11 @@ namespace gcommon
 	void RemoveAllChar(wstring& str, const wchar_t ch);
 	wstring StringToWString(const string& str);
 	string WStringToString(const wstring& str);
-	string GetConfigPara(string strConfigFilePath, string key, string default);
-	wstring GetConfigPara(wstring strConfigFilePath, wstring key, wstring default);
+	tstring StringToTString(const string& str);
+	tstring WStringToTString(const wstring& str);
+	string TStringToString(const tstring& str);
+	wstring TStringToWString(const tstring& str);
+	string ReplaseAllSubString(string& str, const string& src, const string& dst);
+	string GetConfigPara(string strConfigFilePath, string key, string dft);
+	wstring GetConfigPara(wstring strConfigFilePath, wstring key, wstring dft);
 }

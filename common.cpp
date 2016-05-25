@@ -477,6 +477,52 @@ namespace gcommon
 		return str1;
 	}
 
+	tstring StringToTString(const string & str)
+	{
+#ifdef UNICODE	
+		return StringToWString(str);
+#elif
+		return str;
+#endif
+	}
+
+	tstring WStringToTString(const wstring & str)
+	{
+#ifdef UNICODE	
+		return str;
+#elif
+		return WStringToString(str);
+#endif
+	}
+
+	string TStringToString(const tstring & str)
+	{
+#ifdef UNICODE	
+		return WStringToString(str);
+#elif
+		return str;
+#endif
+	}
+
+	wstring TStringToWString(const tstring & str)
+	{
+#ifdef UNICODE	
+		return str;
+#elif
+		return StringToWString(str);
+#endif
+	}
+
+	string ReplaseAllSubString(string & str, const string & src, const string & dst)
+	{
+		size_t fd = string::npos;
+		while ((fd = str.find(src)) != string::npos)
+		{
+			str.replace(fd, src.size(), dst);
+		}
+		return string();
+	}
+
 	/********************************************************************
 	/* 函数名: GetConfigPara
 	/* 描述: 获取配置文件中指定的参数值
@@ -490,14 +536,14 @@ namespace gcommon
 	/*   2013-12-24,xiaogu: create
 	/*   2016-03-14,littledj: default可以为empty
 	/********************************************************************/
-	string GetConfigPara(string strConfigFilePath, string key, string default)
+	string GetConfigPara(string strConfigFilePath, string key, string dft)
 	{
 		if (strConfigFilePath.empty() || key.empty())
 			return string();
 
 		char szConfigValue[MAX_PATH + 1];
 		szConfigValue[0] = 0;
-		GetPrivateProfileStringA("config", key.c_str(), default.c_str(),
+		GetPrivateProfileStringA("config", key.c_str(), dft.c_str(),
 			szConfigValue, MAX_PATH, strConfigFilePath.c_str());
 
 		if (strlen(szConfigValue) > 0)
@@ -505,17 +551,17 @@ namespace gcommon
 			return string(szConfigValue);
 		}
 		else
-			return default;
+			return dft;
 	}
 
-	wstring GetConfigPara(wstring strConfigFilePath, wstring key, wstring default)
+	wstring GetConfigPara(wstring strConfigFilePath, wstring key, wstring dft)
 	{
 		if (strConfigFilePath.empty() || key.empty())
 			return wstring();
 
 		wchar_t szConfigValue[MAX_PATH + 1];
 		szConfigValue[0] = 0;
-		GetPrivateProfileStringW(L"config", key.c_str(), default.c_str(),
+		GetPrivateProfileStringW(L"config", key.c_str(), dft.c_str(),
 			szConfigValue, MAX_PATH, strConfigFilePath.c_str());
 
 		if (wcslen(szConfigValue) > 0)
@@ -523,6 +569,6 @@ namespace gcommon
 			return wstring(szConfigValue);
 		}
 		else
-			return default;
+			return dft;
 	}
 }

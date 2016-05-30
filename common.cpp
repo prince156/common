@@ -397,12 +397,31 @@ namespace gcommon
 		return strs;
 	}
 
-	tstring& TrimString(tstring& str, const TCHAR ch)
+	string& TrimString(string& str, const char ch)
 	{
 		if (str.empty() || str.size() == 0)
 			return str;
 
-		size_t delch = tstring::npos;
+		size_t delch = string::npos;
+		while ((delch = str.find(ch)) == 0)
+			str.erase(delch, 1);
+
+		if (str.empty() || str.size() == 0)
+			return str;
+
+		delch = str.rfind(ch);
+		while ((delch = str.rfind(ch)) == str.length() - 1)
+			str.erase(delch, 1);
+
+		return str;
+	}
+
+	wstring& TrimString(wstring& str, const wchar_t ch)
+	{
+		if (str.empty() || str.size() == 0)
+			return str;
+
+		size_t delch = wstring::npos;
 		while ((delch = str.find(ch)) == 0)
 			str.erase(delch, 1);
 
@@ -458,6 +477,52 @@ namespace gcommon
 		return str1;
 	}
 
+	tstring StringToTString(const string & str)
+	{
+#ifdef UNICODE	
+		return StringToWString(str);
+#elif
+		return str;
+#endif
+	}
+
+	tstring WStringToTString(const wstring & str)
+	{
+#ifdef UNICODE	
+		return str;
+#elif
+		return WStringToString(str);
+#endif
+	}
+
+	string TStringToString(const tstring & str)
+	{
+#ifdef UNICODE	
+		return WStringToString(str);
+#elif
+		return str;
+#endif
+	}
+
+	wstring TStringToWString(const tstring & str)
+	{
+#ifdef UNICODE	
+		return str;
+#elif
+		return StringToWString(str);
+#endif
+	}
+
+	string ReplaseAllSubString(string & str, const string & src, const string & dst)
+	{
+		size_t fd = string::npos;
+		while ((fd = str.find(src)) != string::npos)
+		{
+			str.replace(fd, src.size(), dst);
+		}
+		return string();
+	}
+
 	/********************************************************************
 	/* 函数名: GetConfigPara
 	/* 描述: 获取配置文件中指定的参数值
@@ -471,21 +536,39 @@ namespace gcommon
 	/*   2013-12-24,xiaogu: create
 	/*   2016-03-14,littledj: default可以为empty
 	/********************************************************************/
-	tstring GetConfigPara(tstring strConfigFilePath, tstring key, tstring default)
+	string GetConfigPara(string strConfigFilePath, string key, string dft)
 	{
 		if (strConfigFilePath.empty() || key.empty())
-			return tstring();
+			return string();
 
-		TCHAR szConfigValue[MAX_PATH + 1];
+		char szConfigValue[MAX_PATH + 1];
 		szConfigValue[0] = 0;
-		GetPrivateProfileString(TEXT("config"), key.c_str(), default.c_str(),
+		GetPrivateProfileStringA("config", key.c_str(), dft.c_str(),
 			szConfigValue, MAX_PATH, strConfigFilePath.c_str());
 
-		if (_tcslen(szConfigValue) > 0)
+		if (strlen(szConfigValue) > 0)
 		{
-			return tstring(szConfigValue);
+			return string(szConfigValue);
 		}
 		else
-			return default;
+			return dft;
+	}
+
+	wstring GetConfigPara(wstring strConfigFilePath, wstring key, wstring dft)
+	{
+		if (strConfigFilePath.empty() || key.empty())
+			return wstring();
+
+		wchar_t szConfigValue[MAX_PATH + 1];
+		szConfigValue[0] = 0;
+		GetPrivateProfileStringW(L"config", key.c_str(), dft.c_str(),
+			szConfigValue, MAX_PATH, strConfigFilePath.c_str());
+
+		if (wcslen(szConfigValue) > 0)
+		{
+			return wstring(szConfigValue);
+		}
+		else
+			return dft;
 	}
 }

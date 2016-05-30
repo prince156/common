@@ -39,13 +39,19 @@ namespace gcommon
 	unsigned int random(unsigned int start, unsigned int end);
 	char* wtoa(const wchar_t* data, int len = 0);
 	wchar_t* atow(const char* data, int len = 0);
-	vector<wstring> SplitString(const wstring& str, const wchar_t ch);
 	vector<string> SplitString(const string& str, const char ch);
-	tstring& TrimString(tstring& str, const TCHAR ch = ' ');
-	void RemoveAllChar(wstring& str, const wchar_t ch);
+	vector<wstring> SplitString(const wstring& str, const wchar_t ch);	
+	string& TrimString(string& str, const char ch = ' ');
+	wstring& TrimString(wstring& str, const wchar_t ch = ' ');
 	void RemoveAllChar(string& str, const char ch);
+	void RemoveAllChar(wstring& str, const wchar_t ch);
 	wstring StringToWString(const string& str);
 	string WStringToString(const wstring& str);
-	tstring GetConfigPara(tstring strConfigFilePath, tstring key, tstring default);
-
+	tstring StringToTString(const string& str);
+	tstring WStringToTString(const wstring& str);
+	string TStringToString(const tstring& str);
+	wstring TStringToWString(const tstring& str);
+	string ReplaseAllSubString(string& str, const string& src, const string& dst);
+	string GetConfigPara(string strConfigFilePath, string key, string dft);
+	wstring GetConfigPara(wstring strConfigFilePath, wstring key, wstring dft);
 }

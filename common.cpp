@@ -416,10 +416,17 @@ namespace gcommon
 		return str;
 	}
 
-	void RemoveAllChar(tstring& str, const TCHAR ch)
+	void RemoveAllChar(string& str, const char ch)
 	{
-		size_t delch = tstring::npos;
-		while ((delch = str.find(ch)) != tstring::npos)
+		size_t delch = string::npos;
+		while ((delch = str.find(ch)) != string::npos)
+			str.erase(delch, 1);
+	}
+
+	void RemoveAllChar(wstring& str, const wchar_t ch)
+	{
+		size_t delch = wstring::npos;
+		while ((delch = str.find(ch)) != wstring::npos)
 			str.erase(delch, 1);
 	}
 

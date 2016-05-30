@@ -42,7 +42,8 @@ namespace gcommon
 	vector<wstring> SplitString(const wstring& str, const wchar_t ch);
 	vector<string> SplitString(const string& str, const char ch);
 	tstring& TrimString(tstring& str, const TCHAR ch = ' ');
-	void RemoveAllChar(tstring& str, const TCHAR ch);
+	void RemoveAllChar(wstring& str, const wchar_t ch);
+	void RemoveAllChar(string& str, const char ch);
 	wstring StringToWString(const string& str);
 	string WStringToString(const wstring& str);
 	tstring GetConfigPara(tstring strConfigFilePath, tstring key, tstring default);

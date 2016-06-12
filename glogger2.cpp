@@ -242,7 +242,7 @@ namespace gcommon
 		{
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)color);
 			tcout << out_str ; // 请勿使用 << ends，否则导致下行多一个空格
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)m_defaultColor); // 默认白色
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)PRINT_COLOR::DARK_WHITE); // 默认白色
 		}
 		else
 		{
@@ -251,7 +251,7 @@ namespace gcommon
 			{
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)color);
 				tcout << out_str ;
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)m_defaultColor);
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)PRINT_COLOR::DARK_WHITE);
 			}
 			ReleaseMutex(m_printMutex);// 释放打印信号量
 		}

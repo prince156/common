@@ -481,7 +481,7 @@ namespace gcommon
 	{
 #ifdef UNICODE	
 		return StringToWString(str);
-#elif
+#else
 		return str;
 #endif
 	}
@@ -490,7 +490,7 @@ namespace gcommon
 	{
 #ifdef UNICODE	
 		return str;
-#elif
+#else
 		return WStringToString(str);
 #endif
 	}
@@ -499,7 +499,7 @@ namespace gcommon
 	{
 #ifdef UNICODE	
 		return WStringToString(str);
-#elif
+#else
 		return str;
 #endif
 	}
@@ -508,7 +508,7 @@ namespace gcommon
 	{
 #ifdef UNICODE	
 		return str;
-#elif
+#else
 		return StringToWString(str);
 #endif
 	}

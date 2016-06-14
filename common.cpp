@@ -172,14 +172,14 @@ namespace gcommon
 	* [输入]:
 	*   start: 随机数开始位置
 	*   end: 随机数结束位置（不包括）
-	* [返回值]: unsigned int
+	* [返回值]: uint32_t
 	*   生成的随机数
 	* [修改记录]:
 	*   2013-11-17,littledj: create
 	*   2016-01-20,littledj: 优化srand参数
 	*   2016-03-13,littledj: 参数和返回值都改为无符号，增大范围
 	********************************************************************/
-	unsigned int random(unsigned int start, unsigned int end)
+	uint32_t random(uint32_t start, uint32_t end)
 	{
 		// 参数检查
 		if (start <0)
@@ -204,8 +204,8 @@ namespace gcommon
 			(r2 & 0x000000ff) << 8 |
 			(r3 & 0x000000ff) << 16 |
 			(r4 & 0x000000ff) << 24;
-		double rate = (end - start)*1.0 / (unsigned int)0xFFFFFFFF;
-		unsigned int delta = (unsigned int)(rate * (unsigned int)rr);
+		double rate = (end - start)*1.0 / (uint32_t)0xFFFFFFFF;
+		uint32_t delta = (uint32_t)(rate * (uint32_t)rr);
 		return start + delta;
 	}
 
@@ -252,12 +252,12 @@ namespace gcommon
 		}
 
 		unsigned long ip = 0;
-		int ip_len = _tcslen(strIP);
-		int data_len = 0;
-		int pos = 0;
+		size_t ip_len = _tcslen(strIP);
+		size_t data_len = 0;
+		size_t pos = 0;
 		TCHAR* strIPTmp = new TCHAR[ip_len + 1];
 		_tcscpy(strIPTmp, strIP);
-		for (int i = 0; i < ip_len; i++)
+		for (size_t i = 0; i < ip_len; i++)
 		{
 			if (strIPTmp[i] == '.')
 			{
@@ -319,7 +319,7 @@ namespace gcommon
 			return NULL;
 		}
 
-		int data_len = wcslen(data);
+		size_t data_len = wcslen(data);
 		if (len) data_len = len;
 		char* retData = new char[data_len + 1];
 		for (int i = 0; i < data_len; i++)
@@ -350,7 +350,7 @@ namespace gcommon
 			return NULL;
 		}
 
-		int data_len = strlen(data);
+		size_t data_len = strlen(data);
 		if (len) data_len = len;
 		wchar_t* retData = new wchar_t[data_len + 1];
 		for (int i = 0; i < data_len; i++)
@@ -449,9 +449,23 @@ namespace gcommon
 			str.erase(delch, 1);
 	}
 
+	void DeleteEmptyItems(vector<string>& strs)
+	{
+		for (auto i = strs.begin(); i < strs.end();)
+		{
+			if ((*i).empty())
+			{
+				strs.erase(i);
+				i = strs.begin();
+			}
+			else
+				i++;
+		}
+	}
+
 	wstring StringToWString(const string& str)
 	{
-		unsigned len = str.size() * 2;// 预留字节数
+		size_t len = str.size() * 2;// 预留字节数
 		if (len == 0)
 			return wstring(L"");
 		setlocale(LC_CTYPE, "");     //必须调用此函数
@@ -465,7 +479,7 @@ namespace gcommon
 
 	string WStringToString(const wstring& str)
 	{
-		unsigned len = str.size() * 4;
+		size_t len = str.size() * 4;
 		if (len == 0)
 			return string("");
 		setlocale(LC_CTYPE, "");
@@ -481,7 +495,7 @@ namespace gcommon
 	{
 #ifdef UNICODE	
 		return StringToWString(str);
-#elif
+#else
 		return str;
 #endif
 	}
@@ -490,7 +504,7 @@ namespace gcommon
 	{
 #ifdef UNICODE	
 		return str;
-#elif
+#else
 		return WStringToString(str);
 #endif
 	}
@@ -499,7 +513,7 @@ namespace gcommon
 	{
 #ifdef UNICODE	
 		return WStringToString(str);
-#elif
+#else
 		return str;
 #endif
 	}
@@ -508,7 +522,7 @@ namespace gcommon
 	{
 #ifdef UNICODE	
 		return str;
-#elif
+#else
 		return StringToWString(str);
 #endif
 	}

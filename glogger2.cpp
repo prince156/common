@@ -583,8 +583,8 @@ namespace gcommon
 		TCHAR* ct = new TCHAR[format.length() + 4];
 		
 		_tcscpy_s(ct, format.length() + 4, format.c_str());
-		GetDateFormat(0, 0, NULL, format.c_str(), ct, format.length() + 4);
-		GetTimeFormat(0, 0, NULL, ct, ct, format.length() + 4);
+		GetDateFormat(0, 0, NULL, format.c_str(), ct, (uint32_t)format.length() + 4);
+		GetTimeFormat(0, 0, NULL, ct, ct, (uint32_t)format.length() + 4);
 
 		formatMsg(PRINT_TYPE::RAW, TEXT("%s"), ct);
 		delete[] ct;

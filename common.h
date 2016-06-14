@@ -36,7 +36,7 @@ namespace gcommon
 	int GetCurrentDirPath(TCHAR* &out);
 	TCHAR* inet_ltot(unsigned long ip);
 	unsigned long inet_ttol(const TCHAR* strIP);
-	unsigned int random(unsigned int start, unsigned int end);
+	uint32_t random(uint32_t start, uint32_t end);
 	char* wtoa(const wchar_t* data, int len = 0);
 	wchar_t* atow(const char* data, int len = 0);
 	vector<string> SplitString(const string& str, const char ch);
@@ -45,6 +45,7 @@ namespace gcommon
 	wstring& TrimString(wstring& str, const wchar_t ch = ' ');
 	void RemoveAllChar(string& str, const char ch);
 	void RemoveAllChar(wstring& str, const wchar_t ch);
+	void DeleteEmptyItems(vector<string>& strs);
 	wstring StringToWString(const string& str);
 	string WStringToString(const wstring& str);
 	tstring StringToTString(const string& str);

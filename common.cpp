@@ -322,7 +322,7 @@ namespace gcommon
 		size_t data_len = wcslen(data);
 		if (len) data_len = len;
 		char* retData = new char[data_len + 1];
-		for (int i = 0; i < data_len; i++)
+		for (size_t i = 0; i < data_len; i++)
 		{
 			retData[i] = (char)data[i];
 		}
@@ -353,7 +353,7 @@ namespace gcommon
 		size_t data_len = strlen(data);
 		if (len) data_len = len;
 		wchar_t* retData = new wchar_t[data_len + 1];
-		for (int i = 0; i < data_len; i++)
+		for (size_t i = 0; i < data_len; i++)
 		{
 			retData[i] = data[i];
 		}
@@ -454,10 +454,7 @@ namespace gcommon
 		for (auto i = strs.begin(); i < strs.end();)
 		{
 			if ((*i).empty())
-			{
-				strs.erase(i);
-				i = strs.begin();
-			}
+				strs.erase(i++);
 			else
 				i++;
 		}

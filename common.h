@@ -40,7 +40,7 @@ namespace gcommon
 	char* wtoa(const wchar_t* data, int len = 0);
 	wchar_t* atow(const char* data, int len = 0);
 	vector<string> SplitString(const string& str, const char ch);
-	vector<wstring> SplitString(const wstring& str, const wchar_t ch);	
+	vector<wstring> SplitString(const wstring& str, const wchar_t ch);
 	string& TrimString(string& str, const char ch = ' ');
 	wstring& TrimString(wstring& str, const wchar_t ch = ' ');
 	void RemoveAllChar(string& str, const char ch);

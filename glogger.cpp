@@ -1,6 +1,8 @@
-#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS // for printf_s ...
 
-#ifdef __WINDOWS__
+#ifdef __LINUX__
+// add .h in linux 
+#else
 #include <Windows.h>
 #endif
 
@@ -234,14 +236,13 @@ namespace gcommon
 
 		// 等待打印信号量（防止多线程同时打印时，相互间信息错位）
 		g_printMutex.lock();
-#ifdef __WINDOWS__
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (uint16_t)color);
-		tcout << msg;
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (uint16_t)m_defaultColor);
-#endif // __WINDOWS__
 #ifdef __LINUX__
 		tcout << LINUX_COLOR[(uint16_t)color] << msg;
 		tcout << LINUX_COLOR[0]; // reset color
+#else // 默认为 WINDOWS
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (uint16_t)color);
+		tcout << msg;
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (uint16_t)m_defaultColor);
 #endif // __LINUX__
 		g_printMutex.unlock();// 释放打印信号量
 	}

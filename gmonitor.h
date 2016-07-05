@@ -1,7 +1,7 @@
 #pragma once
 #include "tstream.h"
 #include "gthread.h"
-#include "glogger2.h"
+#include "glogger.h"
 
 using namespace gcommon;
 

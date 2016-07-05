@@ -16,11 +16,11 @@ void GMonitor::ThreadMain()
 
 	Sleep(1);
 	gotoxy(0, 0);
-	_tprintf(TEXT("*********** test ***********\n"));
+	//_tprintf(TEXT("*********** test ***********\n"));
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)PRINT_COLOR::BRIGHT_GREEN);
-	_tprintf(TEXT("  test: %02d%% \n"),m_para->test);
+	//_tprintf(TEXT("  test: %02d%% \n"),m_para->test);
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)PRINT_COLOR::DARK_WHITE);
-	_tprintf(TEXT("****************************\n"));
+	//_tprintf(TEXT("****************************\n"));
 
 }
 

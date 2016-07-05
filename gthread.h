@@ -2,7 +2,7 @@
 #include <string>
 #include <cstdint>
 #include "windows.h"
-#include "glogger2.h"
+#include "glogger.h"
 
 using namespace std;
 namespace gcommon
@@ -58,7 +58,7 @@ namespace gcommon
 		HANDLE m_hThread = NULL;
 
 	public:
-		GLogger2 m_glogger;
+		GLogger m_glogger;
 		THREAD_CONTROL m_control = THREAD_CONTROL::UNKNOWN;
 		THREAD_STATE m_state = THREAD_STATE::UNKNOWN;
 

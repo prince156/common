@@ -5,6 +5,7 @@
 //   2014-12-19,littledj: ?无法输出中文
 //   2015-11-21,littledj: 支持中文
 //	 2015-11-21,littledj: 增加彩色输出功能，不同信息类型一目了然
+//   2016-07-06,littledj: 在linux上编译成功，g++ -std=c++11 -D__LINUX__
 
 
 #pragma once
@@ -15,13 +16,6 @@ using namespace std;
 
 namespace gcommon
 {
-#ifndef TEXT
-#ifdef UNICODE
-#define TEXT(quoat) L##quoat
-#else
-#define TEXT(quoat) quoat
-#endif
-#endif
 	enum class PRINT_COLOR
 	{
 		DARK_BLUE = 1,
@@ -38,6 +32,27 @@ namespace gcommon
 		BRIGHT_PURPLE = 13,
 		BRIGHT_YELLOW = 14,
 		BRIGHT_WHITE = 15,
+	};
+
+	static tstring LINUX_COLOR[] =
+	{
+		TEXT("\033[0m"),
+		TEXT("\033[34m"),
+		TEXT("\033[32m"),
+		TEXT("\033[36m"),
+		TEXT("\033[31m"),
+		TEXT("\033[35m"),
+		TEXT("\033[33m"),
+		TEXT("\033[37m"),
+		TEXT("\033[30m"),
+		TEXT("\033[1m\033[34m"),
+		TEXT("\033[1m\033[32m"),
+		TEXT("\033[1m\033[36m"),
+		TEXT("\033[1m\033[31m"),
+		TEXT("\033[1m\033[35m"),
+		TEXT("\033[1m\033[33m"),
+		TEXT("\033[1m\033[37m"),
+		TEXT("\033[1m\033[30m"),
 	};
 	
 	enum class PRINT_TYPE
@@ -59,11 +74,11 @@ namespace gcommon
 		BOTH = 3,
 	};
 
-	class GLogger2
+	class GLogger
 	{
 	public:
-		GLogger2();
-		~GLogger2();
+		GLogger();
+		~GLogger();
 
 	public:
 		// 彩色输出开关
@@ -150,7 +165,7 @@ namespace gcommon
 		const static int MAX_HEADER_LEN = 16;  // bytes
 		const static int MAX_DEBUG_LEVEL = 3;
 		const static int MIN_DEBUG_LEVEL = 0;
-		const static int MAX_MSG_LEN = 1000;   // bytes
+		const static int MAX_MESSAGE_LEN = 1000;   // bytes
 		const static int MAX_POOL_SIZE = 100;
 
 #ifndef MAX_PATH
@@ -170,9 +185,5 @@ namespace gcommon
 		int m_logDebugLevel;	// 调试信息日志等级
 		bool m_enableColor;		// 允许彩色输出
 		PRINT_COLOR m_defaultColor; // 默认颜色
-
-		void* m_logMutex;		// 日志信号量
-		void* m_printMutex;		// 打印信号量
-		void* m_poolMutex;		// 消息池操作信号量
 	};
 }

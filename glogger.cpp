@@ -1,36 +1,40 @@
-#include <windows.h>
+#define _CRT_SECURE_NO_WARNINGS
+
+#ifdef __WINDOWS__
+#include <Windows.h>
+#endif
+
+#include <mutex>
 #include <iostream>
 #include <cstdio>
 #include <cstdarg>
 #include <ctime>
 #include <fstream>
 
-#include "glogger2.h"
+#include "glogger.h"
 
 namespace gcommon
 {
-	GLogger2::GLogger2()
+	mutex g_logMutex;		// 日志信号量
+	mutex g_printMutex;		// 打印信号量
+	mutex g_poolMutex;		// 消息池操作信号量
+
+	GLogger::GLogger()
 	{
 		m_wpTarget = PRINT_TARGET::BOTH;		// 打印输出目标
 		m_msg = TEXT("");
 		m_msgPoolCount = 0;
 		m_msgPoolPos = 0;
-		m_poolMutex = CreateMutex(NULL, FALSE, TEXT("Mutex_MsgPool")); // 如果已经存在，则将得到已有的mutex
-		m_logMutex = CreateMutex(NULL, FALSE, TEXT("Mutex_MsgLog"));
-		m_printMutex = CreateMutex(NULL, FALSE, TEXT("Mutex_MsgPrint"));
 		m_logFile = TEXT("default.log");
 		m_header = TEXT("##");
 		m_debugLevel = 0;
 		m_logDebugLevel = 0;
-		m_enableColor = false;
+		m_enableColor = true;
 		m_defaultColor = PRINT_COLOR::DARK_WHITE;
 	}
 
-	GLogger2::~GLogger2()
+	GLogger::~GLogger()
 	{
-		if (m_logMutex) ReleaseMutex(m_logMutex);
-		if (m_printMutex) ReleaseMutex(m_printMutex);
-		if (m_poolMutex) ReleaseMutex(m_poolMutex);
 	}
 
 	/********************************************************************
@@ -39,7 +43,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-11-21,littledj: create
 	********************************************************************/
-	void GLogger2::enableColor(bool para)
+	void GLogger::enableColor(bool para)
 	{
 		m_enableColor = para;
 	}
@@ -50,7 +54,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-11-21,littledj: create
 	********************************************************************/
-	void GLogger2::setDefaultColor(PRINT_COLOR color)
+	void GLogger::setDefaultColor(PRINT_COLOR color)
 	{
 		m_defaultColor = color;
 	}
@@ -61,7 +65,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-26,littledj: create
 	********************************************************************/
-	void GLogger2::setOnlyScreen()
+	void GLogger::setOnlyScreen()
 	{
 		m_wpTarget = PRINT_TARGET::SCREEN;
 	}
@@ -72,7 +76,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-26,littledj: create
 	********************************************************************/
-	void GLogger2::setOnlyLogfile()
+	void GLogger::setOnlyLogfile()
 	{
 		m_wpTarget = PRINT_TARGET::FILE;
 	}
@@ -83,12 +87,12 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-26,littledj: create
 	********************************************************************/
-	void GLogger2::setTargetBoth()
+	void GLogger::setTargetBoth()
 	{
 		m_wpTarget = PRINT_TARGET::BOTH;
 	}
 
-	void GLogger2::setTarget(PRINT_TARGET target)
+	void GLogger::setTarget(PRINT_TARGET target)
 	{
 		m_wpTarget = target;
 	}
@@ -101,7 +105,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::setHeader(const tstring header)
+	void GLogger::setHeader(const tstring header)
 	{
 		if (header.length() > MAX_HEADER_LEN)
 		{
@@ -126,7 +130,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::setLogFile(const tstring logFile)
+	void GLogger::setLogFile(const tstring logFile)
 	{
 		if (logFile.empty() || logFile.length() > MAX_PATH)
 		{
@@ -145,7 +149,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::setDebugLevel(const int debugLevel)
+	void GLogger::setDebugLevel(const int debugLevel)
 	{
 		m_debugLevel = 
 			(debugLevel > MAX_DEBUG_LEVEL) ? MAX_DEBUG_LEVEL : debugLevel;
@@ -161,7 +165,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::setLogDebugLevel(const int logDebugLevel)
+	void GLogger::setLogDebugLevel(const int logDebugLevel)
 	{
 		m_logDebugLevel = 
 			(logDebugLevel > MAX_DEBUG_LEVEL) ? MAX_DEBUG_LEVEL : logDebugLevel;
@@ -175,15 +179,15 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	tstring GLogger2::getLastMsg()
+	tstring GLogger::getLastMsg()
 	{
 		return m_msg;
 	}
-	tstring GLogger2::getLastError()
+	tstring GLogger::getLastError()
 	{
 		return m_errormsg;
 	}
-	tstring GLogger2::getLastWarning()
+	tstring GLogger::getLastWarning()
 	{
 		if (!m_errormsg.empty())
 			return m_errormsg;
@@ -196,31 +200,24 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::output(const tstring& msg, PRINT_COLOR color)
+	void GLogger::output(const tstring& msg, PRINT_COLOR color)
 	{
-		tstring out_str;
-		if (!msg.empty())
-			out_str = msg;
-		else
-			out_str = m_msg;
+		if (msg.empty())
+			output_screen(TEXT("<empty message>"), color);
 
 		// 判断是否输出到屏幕
 		if (m_wpTarget == PRINT_TARGET::SCREEN)
-		{
-			output_screen(out_str, color);
-		}
+			output_screen(msg, color);
 
 		// 判断是否输出到日志文件
 		else if (m_wpTarget == PRINT_TARGET::FILE)
-		{
-			output_file(out_str);
-		}	
+			output_file(msg);
 
 		// 都输出
 		else if (m_wpTarget == PRINT_TARGET::BOTH)
 		{
-			output_screen(out_str, color);
-			output_file(out_str);
+			output_screen(msg, color);
+			output_file(msg);
 		}
 	}
 
@@ -230,31 +227,23 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-27,littledj: create
 	********************************************************************/
-	void GLogger2::output_screen(const tstring& msg, PRINT_COLOR color)
+	void GLogger::output_screen(const tstring& msg, PRINT_COLOR color)
 	{
-		tstring out_str;
-		if (!msg.empty())
-			out_str = msg;
-		else
-			out_str = m_msg;
+		if (msg.empty())
+			return;
 
-		if (m_printMutex == NULL)
-		{
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)color);
-			tcout << out_str ; // 请勿使用 << ends，否则导致下行多一个空格
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)m_defaultColor); // 默认白色
-		}
-		else
-		{
-			// 等待打印信号量（防止多线程同时打印时，相互间信息错位）
-			if (WaitForSingleObject(m_printMutex, MUTEX_TIMEOUT) == 0)
-			{
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)color);
-				tcout << out_str ;
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (WORD)m_defaultColor);
-			}
-			ReleaseMutex(m_printMutex);// 释放打印信号量
-		}
+		// 等待打印信号量（防止多线程同时打印时，相互间信息错位）
+		g_printMutex.lock();
+#ifdef __WINDOWS__
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (uint16_t)color);
+		tcout << msg;
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (uint16_t)m_defaultColor);
+#endif // __WINDOWS__
+#ifdef __LINUX__
+		tcout << LINUX_COLOR[(uint16_t)color] << msg;
+		tcout << LINUX_COLOR[0]; // reset color
+#endif // __LINUX__
+		g_printMutex.unlock();// 释放打印信号量
 	}
 
 	/********************************************************************
@@ -263,37 +252,19 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-27,littledj: create
 	********************************************************************/
-	void GLogger2::output_file(const tstring& msg)
+	void GLogger::output_file(const tstring& msg)
 	{
-		tstring out_str;
-		if (!msg.empty())
-			out_str = msg;
-		else
-			out_str = m_msg;
+		if (msg.empty())
+			return;
 
-		if (m_logMutex == NULL)
+		g_logMutex.lock();
+		tofstream logfile(m_logFile, ios_base::out | ios_base::app);
+		if (!logfile.bad())
 		{
-			tofstream logfile(m_logFile, ios_base::out | ios_base::app);
-			if (!logfile.bad())
-			{
-				logfile << out_str;
-				logfile.close();
-			}
+			logfile << msg;
+			logfile.close();
 		}
-		else
-		{
-			// 等待日志信号量
-			if (WaitForSingleObject(m_logMutex, MUTEX_TIMEOUT) == 0)
-			{
-				tofstream logfile(m_logFile, ios_base::out | ios_base::app);
-				if (!logfile.bad())
-				{
-					logfile << out_str;
-					logfile.close();
-				}
-			}
-			ReleaseMutex(m_logMutex);// 释放日志信号量
-		}
+		g_logMutex.unlock();
 	}
 
 	/********************************************************************
@@ -306,12 +277,12 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::formatMsg_v(const PRINT_TYPE type, const tstring& format, va_list ap)
+	void GLogger::formatMsg_v(const PRINT_TYPE type, const tstring& format, va_list ap)
 	{
 		if (format.find('%') != tstring::npos)
 		{
-			TCHAR* msg_tmp = new TCHAR[format.length() + 1024];
-			_vstprintf_s(msg_tmp, format.length() + 1024, format.c_str(), ap);
+			tchar* msg_tmp = new tchar[format.length() + 1024];
+			vstprintf(msg_tmp, format.c_str(), ap);
 			m_msg.assign(msg_tmp);
 			delete[] msg_tmp;
 		}
@@ -326,16 +297,16 @@ namespace gcommon
 		}
 
 		// 为了防止溢出，将信息截断为MAX_MSG_LEN
-		if (m_msg.length() > MAX_MSG_LEN)
+		if (m_msg.length() > 1000)
 		{			
 			if (*(--m_msg.cend()) == '\n')
 			{
-				m_msg.erase(m_msg.cbegin() + MAX_MSG_LEN - 3, m_msg.cend());
+				m_msg.erase(m_msg.begin() + 1000 - 3, m_msg.end());
 				m_msg.append(TEXT("..\n"));
 			}
 			else
 			{
-				m_msg.erase(m_msg.cbegin() + MAX_MSG_LEN - 3, m_msg.cend());
+				m_msg.erase(m_msg.begin() + 1000, m_msg.end());
 				m_msg.append(TEXT("..."));
 			}
 		}			
@@ -350,7 +321,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::formatMsg(const PRINT_TYPE type, const tstring format, ...)
+	void GLogger::formatMsg(const PRINT_TYPE type, const tstring format, ...)
 	{
 		va_list ap;
 		va_start(ap, format);
@@ -364,23 +335,15 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::saveToMessagePool()
+	void GLogger::saveToMessagePool()
 	{
 		// 保存至消息缓冲区
-		if (m_poolMutex)
-		{
-			if (WaitForSingleObject(m_poolMutex, MUTEX_TIMEOUT) == 0)
-			{
-				m_msgPool[m_msgPoolPos] = m_msg;
-				m_msgPoolPos = (m_msgPoolPos + 1) % MAX_POOL_SIZE;
-
-				if (m_msgPoolCount < MAX_POOL_SIZE)
-				{
-					m_msgPoolCount++;
-				}
-			}
-			ReleaseMutex(m_poolMutex);
-		}
+		g_poolMutex.lock();
+		m_msgPool[m_msgPoolPos] = m_msg;
+		m_msgPoolPos = (m_msgPoolPos + 1) % MAX_POOL_SIZE;
+		if (m_msgPoolCount < MAX_POOL_SIZE)		
+			m_msgPoolCount++;
+		g_poolMutex.unlock();
 	}
 
 	/********************************************************************
@@ -389,7 +352,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::error(const tstring format, ...)
+	void GLogger::error(const tstring format, ...)
 	{
 		this->m_msg.clear();
 		va_list ap;
@@ -414,7 +377,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::warning(const tstring format, ...)
+	void GLogger::warning(const tstring format, ...)
 	{
 		this->m_msg.clear();
 		va_list ap;
@@ -440,7 +403,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::info(const tstring format, ...)
+	void GLogger::info(const tstring format, ...)
 	{
 		this->m_msg.clear();
 		va_list ap;
@@ -463,7 +426,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::debug1(const tstring format, ...)
+	void GLogger::debug1(const tstring format, ...)
 	{
 		this->m_msg.clear();
 		if (m_debugLevel>0)
@@ -483,7 +446,7 @@ namespace gcommon
 			saveToMessagePool();
 		}
 	}
-	void GLogger2::debug2(const tstring format, ...)
+	void GLogger::debug2(const tstring format, ...)
 	{
 		this->m_msg.clear();
 		if (m_debugLevel>1)
@@ -500,7 +463,7 @@ namespace gcommon
 				output(m_msg);
 		}
 	}
-	void GLogger2::debug3(const tstring format, ...)
+	void GLogger::debug3(const tstring format, ...)
 	{
 		this->m_msg.clear();
 		if (m_debugLevel>2)
@@ -526,7 +489,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::screen(const tstring format, ...)
+	void GLogger::screen(const tstring format, ...)
 	{
 		this->m_msg.clear();
 		va_list ap;
@@ -549,7 +512,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::logfile(const tstring format, ...)
+	void GLogger::logfile(const tstring format, ...)
 	{
 		this->m_msg.clear();
 		va_list ap;
@@ -572,19 +535,63 @@ namespace gcommon
 	*   2015-05-20,littledj: create
 	*   2015-05-20,littledj: 增加自定义格式
 	********************************************************************/
-	void GLogger2::insertCurrentTime(tstring format)
+	void GLogger::insertCurrentTime(tstring format)
 	{
 		this->m_msg.clear();
 		if (format.empty())
-		{
 			format = TEXT("** yyyy-MM-dd hh:mm:ss **\n");
-		}
 
-		TCHAR* ct = new TCHAR[format.length() + 4];
-		
-		_tcscpy_s(ct, format.length() + 4, format.c_str());
-		GetDateFormat(0, 0, NULL, format.c_str(), ct, (uint32_t)format.length() + 4);
-		GetTimeFormat(0, 0, NULL, ct, ct, (uint32_t)format.length() + 4);
+		time_t tt = time(0);
+		struct tm *lt = localtime(&tt);
+
+		tchar* ct = new tchar[format.length() + 4];		
+		tchar tmp[5];
+		tcscpy(ct, format.c_str());
+		for (size_t i = 0; i < format.size(); i++)
+		{
+			if (tcsncmp(ct + i, TEXT("yyyy"), 4 ) == 0)
+			{
+				stprintf(tmp, TEXT("%04d"), lt->tm_year + 1900);
+				tcsncpy(ct + i, tmp, 4);
+				i += 3;
+				continue;
+			}
+			if (tcsncmp(ct + i, TEXT("MM"), 2) == 0)
+			{
+				stprintf(tmp, TEXT("%02d"), lt->tm_mon + 1);
+				tcsncpy(ct + i, tmp, 2);
+				i++;
+				continue;
+			}
+			if (tcsncmp(ct + i, TEXT("dd"), 2) == 0)
+			{
+				stprintf(tmp, TEXT("%02d"), lt->tm_mday);
+				tcsncpy(ct + i, tmp, 2);
+				i++;
+				continue;
+			}
+			if (tcsncmp(ct + i, TEXT("hh"), 2) == 0 || tcsncmp(ct + i, TEXT("HH"), 2) == 0)
+			{
+				stprintf(tmp, TEXT("%02d"), lt->tm_hour);
+				tcsncpy(ct + i, tmp, 2);
+				i++;
+				continue;
+			}
+			if (tcsncmp(ct + i, TEXT("mm"), 2) == 0)
+			{
+				stprintf(tmp, TEXT("%02d"), lt->tm_min);
+				tcsncpy(ct + i, tmp, 2);
+				i++;
+				continue;
+			}
+			if (tcsncmp(ct + i, TEXT("ss"), 2) == 0)
+			{
+				stprintf(tmp, TEXT("%02d"), lt->tm_sec);
+				tcsncpy(ct + i, tmp, 2);
+				i++;
+				continue;
+			}
+		}
 
 		formatMsg(PRINT_TYPE::RAW, TEXT("%s"), ct);
 		delete[] ct;
@@ -604,21 +611,16 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger2::logMessagePool()
+	void GLogger::logMessagePool()
 	{
-		if (m_poolMutex)
+		g_poolMutex.lock();
+		int msgStart = (m_msgPoolPos + MAX_POOL_SIZE - m_msgPoolCount) % MAX_POOL_SIZE;
+		for (int i = 0; i < m_msgPoolCount; i++)
 		{
-			if (WaitForSingleObject(m_poolMutex, MUTEX_TIMEOUT) == 0)
-			{
-				int msgStart = (m_msgPoolPos + MAX_POOL_SIZE - m_msgPoolCount) % MAX_POOL_SIZE;
-				for (int i = 0; i < m_msgPoolCount; i++)
-				{
-					int msgReadPos = (msgStart + i) % MAX_POOL_SIZE;
-					output_file(m_msgPool[msgReadPos]);					
-				}
-			}
-			ReleaseMutex(m_poolMutex);
+			int msgReadPos = (msgStart + i) % MAX_POOL_SIZE;
+			output_file(m_msgPool[msgReadPos]);
 		}
+		g_poolMutex.unlock();
 	}
 
 	/********************************************************************
@@ -627,17 +629,12 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-27,littledj: create
 	********************************************************************/
-	void GLogger2::clearMessagePool()
+	void GLogger::clearMessagePool()
 	{
-		if (m_poolMutex)
-		{
-			if (WaitForSingleObject(m_poolMutex, MUTEX_TIMEOUT) == 0)
-			{
-				this->m_msgPoolCount = 0;
-				this->m_msgPoolPos = 0;
-			}
-			ReleaseMutex(m_poolMutex);
-		}
+		g_poolMutex.lock();
+		this->m_msgPoolCount = 0;
+		this->m_msgPoolPos = 0;
+		g_poolMutex.unlock();
 	}
 
 	/********************************************************************
@@ -646,7 +643,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-25,littledj: create
 	********************************************************************/	
-	tstring GLogger2::PRINT_TYPE_ICON(const PRINT_TYPE type)
+	tstring GLogger::PRINT_TYPE_ICON(const PRINT_TYPE type)
 	{
 		switch (type)
 		{

@@ -30,9 +30,6 @@
     <ClCompile Include="printable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="glogger2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gcli.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,6 +40,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gmonitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,9 +62,6 @@
     <ClInclude Include="printable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="glogger2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tstream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gmonitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

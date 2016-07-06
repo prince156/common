@@ -22,11 +22,26 @@ namespace gcommon
 #define tclog wclog
 #define to_tstring to_wstring
 
+#define tfopen _wfopen
+#define tsystem _wsystem
+#define _tfinddata_t _wfinddata_t
+#define _tfindfirst _wfindfirst
+#define _tfindnext _wfindnext
+
+#define ttoi _wtoi
+
 #define vstprintf vswprintf
 #define stprintf swprintf
+#define tcslen wcslen 
 #define tcscpy wcscpy 
+#define tcsstr wcsstr
+#define tcschr wcschr
+#define tcscat wcscat
+#define tcscmp wcscmp
+#define tcsrchr wcsrchr
 #define tcsncpy wcsncpy 
 #define tcsncmp wcsncmp
+
 
 
 	typedef wchar_t tchar;
@@ -59,9 +74,23 @@ namespace gcommon
 #define tclog clog
 #define to_tstring to_string
 
+#define tfopen fopen
+#define tsystem system
+#define _tfinddata_t _finddata_t
+#define _tfindfirst _findfirst
+#define _tfindnext _findnext
+
+#define ttoi atoi
+
 #define vstprintf vsprintf
 #define stprintf sprintf
+#define tcslen strlen
 #define tcscpy strcpy 
+#define tcsstr strstr
+#define tcschr strchr
+#define tcscat strcat
+#define tcscmp strcmp
+#define tcsrchr strrchr
 #define tcsncpy strncpy 
 #define tcsncmp strncmp
 

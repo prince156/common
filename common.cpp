@@ -1,6 +1,19 @@
 // common.cpp : Defines the entry point for the console application.
 //
+#ifdef __LINUX__
+#include <unistd.h>
+#else
+#include <Windows.h>
+#endif
 
+#include <ctime>
+#include <cstdint>
+#include <random>
+#include <vector>
+#include <string>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "common.h"
 using namespace gcommon;
 
@@ -52,7 +65,7 @@ namespace gcommon
 	*   2013-12-09,littledj: create
 	*   2014-04-08,littledj: 单元测试，并修改
 	*********************************************************************/
-	int GetParaFromARG(int argc, TCHAR* argv[], TCHAR* prefix, TCHAR* &out, int pos)
+	int GetParaFromARG(int argc, tchar* argv[], tchar* prefix, tchar* &out, int pos)
 	{
 		int count = 0;
 		bool bFind = false;
@@ -95,8 +108,8 @@ namespace gcommon
 					i++; // 判断为前导符，跳过一个参数
 				}
 			}
-			else if (_tcsncmp(argv[i], prefix, _tcslen(prefix)) == 0 &&	// 寻找指定前导参数
-				_tcslen(argv[i]) == _tcslen(prefix))
+			else if (tcsncmp(argv[i], prefix, tcslen(prefix)) == 0 &&	// 寻找指定前导参数
+				tcslen(argv[i]) == tcslen(prefix))
 			{
 				bFindPrefix = true;
 				do
@@ -156,14 +169,37 @@ namespace gcommon
 	*   2013-12-07,littledj: 返回值改为CString，不再使用全局变量
 	*   2014-10-17,littledj: 返回值改为int, 输出通过参数out实现
 	********************************************************************/
-	int GetCurrentDirPath(TCHAR* &out)
+	tstring GetCurrentDirPath()
 	{
-		out = new TCHAR[MAX_PATH + 1];
-		memset(out, 0, (MAX_PATH + 1)*sizeof(TCHAR));
-		if (NULL == _tgetcwd(out, MAX_PATH))
-			return -1;
-		else
-			return 0;
+		tstring strCurrentDir;
+		tchar* pCurrentDir = new tchar[MAX_PATH + 1];
+		pCurrentDir[0] = 0;
+#ifdef __LINUX__
+		ssize_t count = readlink("/proc/self/exe", pCurrentDir, MAX_PATH);
+		if (count == 0)
+		{
+			delete[] pCurrentDir;
+			return TEXT("./");
+		}
+
+		pCurrentDir[count] = 0;
+		(strrchr(pCurrentDir, '/'))[1] = 0;
+		strCurrentDir = pCurrentDir;
+		strCurrentDir += "/";
+		delete[] pCurrentDir;
+#else
+		uint32_t nRet = GetModuleFileName(NULL, pCurrentDir, MAX_PATH);
+		if (nRet == 0)
+		{
+			delete[] pCurrentDir;
+			return TEXT(".\\");
+		}
+
+		(tcsrchr(pCurrentDir, '\\'))[1] = 0;
+		strCurrentDir = pCurrentDir;
+		delete[] pCurrentDir;
+#endif
+		return strCurrentDir;
 	}
 
 	/********************************************************************
@@ -182,7 +218,7 @@ namespace gcommon
 	uint32_t random(uint32_t start, uint32_t end)
 	{
 		// 参数检查
-		if (start <0)
+		if (start < 0)
 			start = 0;
 		if (end <= start)
 			return start;
@@ -214,12 +250,12 @@ namespace gcommon
 	* [描述]: 将long类型的ip地址转换成字符串（xxx.xxx.xxx.xx）
 	* [输入]:
 	*   ip：ip地址
-	* [返回值]: TCHAR
+	* [返回值]: tchar
 	*   转换后的ip地址字符串
 	* [修改记录]:
 	*   2014-12-17,littledj: create
 	********************************************************************/
-	TCHAR* inet_ltot(unsigned long ip)
+	tchar* inet_ltot(unsigned long ip)
 	{
 		unsigned char chIP[4];
 		chIP[0] = (unsigned char)(ip);
@@ -227,10 +263,10 @@ namespace gcommon
 		chIP[2] = (unsigned char)(ip >> 16);
 		chIP[3] = (unsigned char)(ip >> 24);
 
-		static TCHAR strIP[16];
-		memset(strIP, 0, 16 * sizeof(TCHAR));
+		static tchar strIP[16];
+		memset(strIP, 0, 16 * sizeof(tchar));
 
-		_stprintf(strIP, TEXT("%u.%u.%u.%u"), chIP[0], chIP[1], chIP[2], chIP[3]);
+		stprintf(strIP, TEXT("%u.%u.%u.%u"), chIP[0], chIP[1], chIP[2], chIP[3]);
 		return strIP;
 	}
 
@@ -244,7 +280,7 @@ namespace gcommon
 	* [修改记录]:
 	*   2014-12-17,littledj: create
 	********************************************************************/
-	unsigned long inet_ttol(const TCHAR* strIP)
+	unsigned long inet_ttol(const tchar* strIP)
 	{
 		if (strIP == NULL)
 		{
@@ -252,11 +288,11 @@ namespace gcommon
 		}
 
 		unsigned long ip = 0;
-		size_t ip_len = _tcslen(strIP);
+		size_t ip_len = tcslen(strIP);
 		size_t data_len = 0;
 		size_t pos = 0;
-		TCHAR* strIPTmp = new TCHAR[ip_len + 1];
-		_tcscpy(strIPTmp, strIP);
+		tchar* strIPTmp = new tchar[ip_len + 1];
+		tcscpy(strIPTmp, strIP);
 		for (size_t i = 0; i < ip_len; i++)
 		{
 			if (strIPTmp[i] == '.')
@@ -265,29 +301,29 @@ namespace gcommon
 			}
 		}
 
-		data_len = _tcslen(strIPTmp + pos);
-		ip |= (unsigned char)_ttoi(strIPTmp + pos);
+		data_len = tcslen(strIPTmp + pos);
+		ip |= (unsigned char)ttoi(strIPTmp + pos);
 		ip <<= 8;
 		pos += data_len; pos++;	// skip '\0'
 		if (pos >= ip_len)
 			goto convert_end;
 
-		data_len = _tcslen(strIPTmp + pos);
-		ip |= (unsigned char)_ttoi(strIPTmp + pos);
+		data_len = tcslen(strIPTmp + pos);
+		ip |= (unsigned char)ttoi(strIPTmp + pos);
 		ip <<= 8;
 		pos += data_len; pos++;	// skip '\0'
 		if (pos >= ip_len)
 			goto convert_end;
 
-		data_len = _tcslen(strIPTmp + pos);
-		ip |= (unsigned char)_ttoi(strIPTmp + pos);
+		data_len = tcslen(strIPTmp + pos);
+		ip |= (unsigned char)ttoi(strIPTmp + pos);
 		ip <<= 8;
 		pos += data_len; pos++;	// skip '\0'
 		if (pos >= ip_len)
 			goto convert_end;
 
-		data_len = _tcslen(strIPTmp + pos);
-		ip |= (unsigned char)_ttoi(strIPTmp + pos);
+		data_len = tcslen(strIPTmp + pos);
+		ip |= (unsigned char)ttoi(strIPTmp + pos);
 		pos += data_len;
 		if (pos == ip_len)
 		{
@@ -467,8 +503,7 @@ namespace gcommon
 			return wstring(L"");
 		setlocale(LC_CTYPE, "");     //必须调用此函数
 		wchar_t *p = new wchar_t[len];// 申请一段内存存放转换后的字符串
-		size_t count;
-		mbstowcs_s(&count, p, len, str.c_str(), str.size());// 转换
+		mbstowcs(p, str.c_str(), str.size());// 转换
 		wstring str1(p);
 		delete[] p;// 释放申请的内存
 		return str1;
@@ -481,8 +516,7 @@ namespace gcommon
 			return string("");
 		setlocale(LC_CTYPE, "");
 		char *p = new char[len];
-		size_t count;
-		wcstombs_s(&count, p, len, str.c_str(), str.size());
+		wcstombs(p, str.c_str(), str.size());
 		string str1(p);
 		delete[] p;
 		return str1;
@@ -534,52 +568,109 @@ namespace gcommon
 		return string();
 	}
 
-	/********************************************************************
-	/* 函数名: GetConfigPara
-	/* 描述: 获取配置文件中指定的参数值
-	/* 输入:
-	/*   strConfigFile：配置文件名
-	/*   lpKey：参数名称
-	/*   lpDefault：默认值
-	/* 输出:
-	/*   CString: 参数的字符串形式
-	/* 修改记录:
-	/*   2013-12-24,xiaogu: create
-	/*   2016-03-14,littledj: default可以为empty
-	/********************************************************************/
-	string GetConfigPara(string strConfigFilePath, string key, string dft)
+
+	//从INI文件读取字符串类型数据
+	tstring GetConfigString(const tstring& filename, const tstring& key,
+		const tstring& dft, const tstring& title)
 	{
-		if (strConfigFilePath.empty() || key.empty())
-			return string();
+		FILE *fp;
+		tchar szLine[1024];
+		szLine[0] = 0;
+		static tchar tmpstr[1024];
+		int rtnval;
+		int i = 0;
+		int flag = 0;
+		tchar *tmp;
 
-		char szConfigValue[MAX_PATH + 1];
-		szConfigValue[0] = 0;
-		GetPrivateProfileStringA("config", key.c_str(), dft.c_str(),
-			szConfigValue, MAX_PATH, strConfigFilePath.c_str());
-
-		if (strlen(szConfigValue) > 0)
+		if ((fp = tfopen(filename.c_str(), TEXT("r"))) == NULL)
 		{
-			return string(szConfigValue);
-		}
-		else
 			return dft;
+		}
+		while (!feof(fp))
+		{
+			rtnval = fgetc(fp);
+			if (rtnval == EOF)
+			{
+				if (tcslen(szLine) > 0)
+				{
+					tmp = tcschr(szLine, '=');
+					if ((tmp != NULL) && (flag == 1))
+					{
+						if (tcsstr(szLine, key.c_str()) != NULL)
+						{
+							//注释行
+							if ('#' == szLine[0])
+							{
+							}
+							else if ('/' == szLine[0] && '/' == szLine[1])
+							{
+							}
+							else
+							{
+								//找打key对应变量
+								tcscpy(tmpstr, tmp + 1);
+								fclose(fp);
+								return tmpstr;
+							}
+						}
+					}
+				}
+
+				break;
+			}
+			else
+			{
+				szLine[i++] = rtnval;
+				szLine[i] = 0;
+			}
+			if (rtnval == '\n')
+			{
+				szLine[i - 1] = 0;
+				i = 0;
+				tmp = tcschr(szLine, '=');
+				if ((tmp != NULL) && (flag == 1))
+				{
+					if (tcsstr(szLine, key.c_str()) != NULL)
+					{
+						//注释行
+						if ('#' == szLine[0])
+						{
+						}
+						else if ('/' == szLine[0] && '/' == szLine[1])
+						{
+
+						}
+						else
+						{
+							//找打key对应变量
+							tcscpy(tmpstr, tmp + 1);
+							fclose(fp);
+							return tmpstr;
+						}
+					}
+				}
+				else
+				{
+					tcscpy(tmpstr, TEXT("["));
+					tcscat(tmpstr, title.c_str());
+					tcscat(tmpstr, TEXT("]"));
+					if (tcsncmp(tmpstr, szLine, tcslen(tmpstr)) == 0)
+					{
+						//找到title
+						flag = 1;
+					}
+				}
+			}
+		}
+		fclose(fp);
+		return dft;
 	}
 
-	wstring GetConfigPara(wstring strConfigFilePath, wstring key, wstring dft)
+	//从INI文件读取整类型数据
+	int GetConfigInt(const tstring& filename, const tstring& key,
+		const tstring& dft, const tstring& title)
 	{
-		if (strConfigFilePath.empty() || key.empty())
-			return wstring();
-
-		wchar_t szConfigValue[MAX_PATH + 1];
-		szConfigValue[0] = 0;
-		GetPrivateProfileStringW(L"config", key.c_str(), dft.c_str(),
-			szConfigValue, MAX_PATH, strConfigFilePath.c_str());
-
-		if (wcslen(szConfigValue) > 0)
-		{
-			return wstring(szConfigValue);
-		}
-		else
-			return dft;
+		return ttoi(GetConfigString(filename, key, dft, title).c_str());
 	}
+
 }

@@ -5,14 +5,7 @@
 
 #pragma once
 #pragma warning(disable:4996 4200)
-#include <Windows.h>
-#include <tchar.h>
-#include <ctime>
-#include <cstdint>
-#include <random>
-#include <direct.h>
-#include <vector>
-#include <string>
+
 #include "tstream.h"
 
 using namespace std;
@@ -21,7 +14,7 @@ namespace gcommon
 {
 
 #ifndef MAX_PATH
-#define MAX_PATH 128
+#define MAX_PATH 256
 #endif
 
 #define IDLE_TIME				100
@@ -32,10 +25,10 @@ namespace gcommon
 	uint16_t ntohs(const uint16_t data);
 	uint32_t htonl(const uint32_t data);
 	uint32_t ntohl(const uint32_t data);
-	int GetParaFromARG(int argc, TCHAR* argv[], TCHAR* prefix, TCHAR* &out, int pos = 1);
-	int GetCurrentDirPath(TCHAR* &out);
-	TCHAR* inet_ltot(unsigned long ip);
-	unsigned long inet_ttol(const TCHAR* strIP);
+	int GetParaFromARG(int argc, tchar* argv[], tchar* prefix, tchar* &out, int pos = 1);
+	tstring GetCurrentDirPath();
+	tchar* inet_ltot(unsigned long ip);
+	unsigned long inet_ttol(const tchar* strIP);
 	uint32_t random(uint32_t start, uint32_t end);
 	char* wtoa(const wchar_t* data, int len = 0);
 	wchar_t* atow(const char* data, int len = 0);
@@ -53,6 +46,8 @@ namespace gcommon
 	string TStringToString(const tstring& str);
 	wstring TStringToWString(const tstring& str);
 	string ReplaseAllSubString(string& str, const string& src, const string& dst);
-	string GetConfigPara(string strConfigFilePath, string key, string dft);
-	wstring GetConfigPara(wstring strConfigFilePath, wstring key, wstring dft);
+	tstring GetConfigString(const tstring& filename, const tstring& key,
+		const tstring& dft = TEXT(""), const tstring& title = TEXT("config"));
+	int GetConfigInt(const tstring& filename, const tstring& key,
+		const tstring& dft = TEXT("0"), const tstring& title = TEXT("config"));
 }

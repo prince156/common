@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS // for printf_s ...
+#define _CRT_NON_CONFORMING_SWPRINTFS
 
 #ifdef __LINUX__
 // add .h in linux 

@@ -607,12 +607,13 @@ namespace gcommon
 							}
 							else
 							{
-								if (tcslen(tmp) == 0)
+								fclose(fp);
+
+								if (tcslen(tmp) == 1)
 									return dft;
 
-								//找打key对应变量
+								//找key对应变量
 								tcscpy(tmpstr, tmp + 1);
-								fclose(fp);
 								return tmpstr;
 							}
 						}
@@ -645,12 +646,13 @@ namespace gcommon
 						}
 						else
 						{
-							if (tcslen(tmp) == 0)
+							fclose(fp);
+
+							if (tcslen(tmp) == 1)
 								return dft;
 
-							//找打key对应变量
-							tcscpy(tmpstr, tmp + 1);
-							fclose(fp);
+							//找key对应变量
+							tcscpy(tmpstr, tmp + 1);							
 							return tmpstr;
 						}
 					}

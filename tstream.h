@@ -4,6 +4,7 @@
 #include <fstream>
 #include <regex>
 #include <cstdio>
+#include <io.h>
 #include "string.h"
 
 using namespace std;
@@ -22,6 +23,7 @@ namespace gcommon
 #define tclog wclog
 #define to_tstring to_wstring
 
+#define taccess _waccess
 #define tfopen _wfopen
 #define tsystem _wsystem
 #define _tfinddata_t _wfinddata_t
@@ -38,6 +40,7 @@ namespace gcommon
 #define tcschr wcschr
 #define tcscat wcscat
 #define tcscmp wcscmp
+#define tcsicmp wcsicmp
 #define tcsrchr wcsrchr
 #define tcsncpy wcsncpy 
 #define tcsncmp wcsncmp
@@ -74,6 +77,7 @@ namespace gcommon
 #define tclog clog
 #define to_tstring to_string
 
+#define taccess access
 #define tfopen fopen
 #define tsystem system
 #define _tfinddata_t _finddata_t
@@ -90,6 +94,7 @@ namespace gcommon
 #define tcschr strchr
 #define tcscat strcat
 #define tcscmp strcmp
+#define tcsicmp stricmp
 #define tcsrchr strrchr
 #define tcsncpy strncpy 
 #define tcsncmp strncmp

@@ -478,6 +478,7 @@ namespace gcommon
 			// 输出
 			if (m_enableColor)	
 				output(m_msg, PRINT_COLOR::DARK_GREEN);
+			else
 				output(m_msg);
 
 			// 保存当前消息

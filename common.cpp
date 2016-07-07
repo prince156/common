@@ -504,6 +504,7 @@ namespace gcommon
 		setlocale(LC_CTYPE, "");     //必须调用此函数
 		wchar_t *p = new wchar_t[len];// 申请一段内存存放转换后的字符串
 		mbstowcs(p, str.c_str(), str.size());// 转换
+		p[str.size()] = 0;
 		wstring str1(p);
 		delete[] p;// 释放申请的内存
 		return str1;
@@ -517,6 +518,7 @@ namespace gcommon
 		setlocale(LC_CTYPE, "");
 		char *p = new char[len];
 		wcstombs(p, str.c_str(), str.size());
+		p[str.size()] = 0;
 		string str1(p);
 		delete[] p;
 		return str1;

@@ -4,7 +4,6 @@
 #include <fstream>
 #include <regex>
 #include <cstdio>
-#include <io.h>
 #include "string.h"
 
 using namespace std;
@@ -26,9 +25,6 @@ namespace gcommon
 #define taccess _waccess
 #define tfopen _wfopen
 #define tsystem _wsystem
-#define _tfinddata_t _wfinddata_t
-#define _tfindfirst _wfindfirst
-#define _tfindnext _wfindnext
 
 #define ttoi _wtoi
 
@@ -80,9 +76,6 @@ namespace gcommon
 #define taccess access
 #define tfopen fopen
 #define tsystem system
-#define _tfinddata_t _finddata_t
-#define _tfindfirst _findfirst
-#define _tfindnext _findnext
 
 #define ttoi atoi
 

@@ -607,6 +607,9 @@ namespace gcommon
 							}
 							else
 							{
+								if (tcslen(tmp) == 0)
+									return dft;
+
 								//找打key对应变量
 								tcscpy(tmpstr, tmp + 1);
 								fclose(fp);
@@ -642,6 +645,9 @@ namespace gcommon
 						}
 						else
 						{
+							if (tcslen(tmp) == 0)
+								return dft;
+
 							//找打key对应变量
 							tcscpy(tmpstr, tmp + 1);
 							fclose(fp);

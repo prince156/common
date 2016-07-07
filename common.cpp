@@ -626,7 +626,7 @@ namespace gcommon
 				szLine[i++] = rtnval;
 				szLine[i] = 0;
 			}
-			if (rtnval == '\n')
+			if (rtnval == '\n' || rtnval == '\r')
 			{
 				szLine[i - 1] = 0;
 				i = 0;

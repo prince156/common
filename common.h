@@ -21,10 +21,10 @@ namespace gcommon
 #define THREAD_START_TIMEOUT	2000			// 启动线程超时时间（毫秒）
 #define THREAD_STOP_TIMEOUT		2000			// 停止线程超时时间
 
-	uint16_t htons(const uint16_t data);
-	uint16_t ntohs(const uint16_t data);
-	uint32_t htonl(const uint32_t data);
-	uint32_t ntohl(const uint32_t data);
+	uint16_t g_htons(const uint16_t data);
+	uint16_t g_ntohs(const uint16_t data);
+	uint32_t g_htonl(const uint32_t data);
+	uint32_t g_ntohl(const uint32_t data);
 	int GetParaFromARG(int argc, tchar* argv[], tchar* prefix, tchar* &out, int pos = 1);
 	tstring GetCurrentDirPath();
 	tchar* inet_ltot(unsigned long ip);

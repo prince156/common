@@ -20,19 +20,19 @@ using namespace gcommon;
 
 namespace gcommon
 {
-	uint16_t htons(const uint16_t data)
+	uint16_t g_htons(const uint16_t data)
 	{
 		uint16_t tmp = (data & 0xff00) >> 8;
 		tmp |= (data & 0x00ff) << 8;
 		return tmp;
 	}
 
-	uint16_t ntohs(const uint16_t data)
+	uint16_t g_ntohs(const uint16_t data)
 	{
-		return htons(data);
+		return g_htons(data);
 	}
 
-	uint32_t htonl(const uint32_t data)
+	uint32_t g_htonl(const uint32_t data)
 	{
 		uint32_t tmp = (data & 0xff000000) >> 24;
 		tmp |= (data & 0x00ff0000) >> 8;
@@ -41,9 +41,9 @@ namespace gcommon
 		return tmp;
 	}
 
-	uint32_t ntohl(const uint32_t data)
+	uint32_t g_ntohl(const uint32_t data)
 	{
-		return htonl(data);
+		return g_htonl(data);
 	}
 
 	/********************************************************************
@@ -176,7 +176,7 @@ namespace gcommon
 		pCurrentDir[0] = 0;
 #ifdef __LINUX__
 		ssize_t count = readlink("/proc/self/exe", pCurrentDir, MAX_PATH);
-		if (count == 0)
+		if (count <= 0)
 		{
 			delete[] pCurrentDir;
 			return TEXT("./");
@@ -218,8 +218,6 @@ namespace gcommon
 	uint32_t random(uint32_t start, uint32_t end)
 	{
 		// 参数检查
-		if (start < 0)
-			start = 0;
 		if (end <= start)
 			return start;
 
@@ -228,7 +226,7 @@ namespace gcommon
 		if (bFirst)
 		{
 			char* chr = new char[1];
-			srand((int)chr);
+			srand((long)chr); // osx 上需要long
 			bFirst = false;
 		}
 
@@ -328,7 +326,7 @@ namespace gcommon
 		if (pos == ip_len)
 		{
 			delete[] strIPTmp;
-			return ntohl(ip);
+			return g_ntohl(ip);
 		}
 
 	convert_end:

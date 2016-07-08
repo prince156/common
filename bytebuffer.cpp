@@ -61,13 +61,13 @@ namespace gcommon
 
 	int ByteBuffer::writeInt16(uint16_t value)
 	{
-		uint16_t temp = htons(value);
+		uint16_t temp = g_htons(value);
 		return this->writeBuffer((uint8_t*)& temp, 2);
 	}
 
 	int ByteBuffer::writeInt32(uint32_t value)
 	{
-		uint32_t temp = htonl(value);
+		uint32_t temp = g_htonl(value);
 		return this->writeBuffer((uint8_t*)& temp, 4);
 	}
 
@@ -118,14 +118,14 @@ namespace gcommon
 	{
 		uint16_t temp = 0;
 		this->readBuffer(2, (uint8_t*)& temp);
-		return ntohs(temp);
+		return g_ntohs(temp);
 	}
 
 	uint32_t ByteBuffer::readInt32()
 	{
 		uint32_t temp = 0;
 		this->readBuffer(4, (uint8_t*)& temp);
-		return ntohl(temp);
+		return g_ntohl(temp);
 	}
 
 	uint32_t ByteBuffer::getWritePosition() const

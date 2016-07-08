@@ -3,7 +3,10 @@
 
 #include "gcli.h"
 #include "common.h"
+#include "tstream.h"
 #include <conio.h>
+
+using namespace gcommon;
 
 GCLI::GCLI(void)
 {
@@ -105,21 +108,21 @@ void GCLI::DispatchCommand(const tstring& command)
 	// 参数检查
 	if (command.empty() || command.length() == 0 || command.length() > MAX_CMD_LEN)
 	{
-		_tprintf_s(TEXT("command is <null> or too long!\n"));
+		tprintf(TEXT("command is <null> or too long!\n"));
 		return;
 	}
 
 	// 调试信息
-	//_tprintf_s(TEXT("debug: "));
-	//_tprintf_s(command.c_str());
-	//_tprintf_s(TEXT("\n"));
+	//tprintf(TEXT("debug: "));
+	//tprintf(command.c_str());
+	//tprintf(TEXT("\n"));
 
 	// 确定命令
 	vector<tstring> cmdList = split(command);
 	int argc = cmdList.size() - 1;
 	if (argc > MAX_CMD_PARA_COUNT)
 	{
-		_tprintf_s(TEXT("to many arguments!\n"));
+		tprintf(TEXT("to many arguments!\n"));
 		return;
 	}
 
@@ -144,7 +147,7 @@ void GCLI::DispatchCommand(const tstring& command)
 	}
 	else
 	{
-		_tprintf_s(TEXT("<bad command>\n"));
+		tprintf(TEXT("<bad command>\n"));
 	}
 }
 
@@ -170,8 +173,8 @@ void GCLI::MainLoop()
 	list<tstring> cmdList;
 	auto posList = cmdList.cend();
 	//bool bDirect = 0;	//  查询list的方向（用于上下翻看历史命令；）
-	TCHAR *cmd = new TCHAR[MAX_CMD_LEN + 1];
-	TCHAR *cmd_tmp = new TCHAR[MAX_CMD_LEN + 1];
+	tchar *cmd = new tchar[MAX_CMD_LEN + 1];
+	tchar *cmd_tmp = new tchar[MAX_CMD_LEN + 1];
 	PSHELL_HANDLER cmdAss = NULL;
 	unsigned int pos = 0;
 	bool bInit = true;
@@ -184,7 +187,7 @@ void GCLI::MainLoop()
 		// 判断是否初始化
 		if (bInit)
 		{
-			_tprintf_s(m_prompt.c_str());
+			tprintf(m_prompt.c_str());
 			pos = 0;
 			memset(cmd, 0, MAX_CMD_LEN + 1);
 			bInit = false;
@@ -205,8 +208,8 @@ void GCLI::MainLoop()
 					continue;
 
 				while (pos--)
-					_tprintf_s(TEXT("\b \b"));
-				_tprintf_s(cmdAss->strCMD.c_str());
+					tprintf(TEXT("\b \b"));
+				tprintf(cmdAss->strCMD.c_str());
 				pos = cmdAss->strCMD.length();
 			}
 			continue;
@@ -228,7 +231,7 @@ void GCLI::MainLoop()
 		{
 			if (pos == 0)
 			{
-				_tprintf_s(TEXT("\n"));
+				tprintf(TEXT("\n"));
 				DispatchCommand(DEFAULT_CMD_HELP);
 				bInit = true;
 			}
@@ -245,12 +248,12 @@ void GCLI::MainLoop()
 			if (pos > 0)
 			{
 				pos--;
-				_tprintf_s(TEXT("\b"));
-				_tcscpy_s(cmd + pos, _tcslen(cmd + pos + 1)+1, cmd + pos + 1);
-				_tprintf_s(TEXT("%s "), cmd + pos);
-				for (i = 0; i < _tcslen(cmd + pos) + 1; i++)
+				tprintf(TEXT("\b"));
+				tcscpy(cmd + pos, cmd + pos + 1);
+				tprintf(TEXT("%s "), cmd + pos);
+				for (i = 0; i < tcslen(cmd + pos) + 1; i++)
 				{
-					_tprintf_s(TEXT("\b"));
+					tprintf(TEXT("\b"));
 				}
 			}
 			continue;
@@ -259,7 +262,7 @@ void GCLI::MainLoop()
 		// 回车键的处理
 		if (ch == '\r' || ch == '\n')
 		{
-			_tprintf_s(TEXT("\n"));
+			tprintf(TEXT("\n"));
 			DispatchCommand(cmd);
 			if (pos != 0)
 			{
@@ -282,13 +285,13 @@ void GCLI::MainLoop()
 			switch (ch)
 			{
 			case 'S':	// [delete]键
-				if (pos < _tcslen(cmd))
+				if (pos < tcslen(cmd))
 				{
-					_tcscpy_s(cmd + pos, _tcslen(cmd+pos+1)+1, cmd + pos + 1);
-					_tprintf_s(TEXT("%s "), cmd + pos);
-					for (i = 0; i < _tcslen(cmd + pos) + 1; i++)
+					tcscpy(cmd + pos, cmd + pos + 1);
+					tprintf(TEXT("%s "), cmd + pos);
+					for (i = 0; i < tcslen(cmd + pos) + 1; i++)
 					{
-						_tprintf_s(TEXT("\b"));
+						tprintf(TEXT("\b"));
 					}
 				}
 				break;
@@ -313,7 +316,7 @@ void GCLI::MainLoop()
 				if (posList == cmdList.cend())
 				{
 					while (pos--)
-						_tprintf_s(TEXT("\b \b"));
+						tprintf(TEXT("\b \b"));
 					memset(cmd, 0, MAX_CMD_LEN + 1);
 					pos = 0;
 				}
@@ -324,7 +327,7 @@ void GCLI::MainLoop()
 				else if(pos)
 				{
 					while (pos--)
-						_tprintf_s(TEXT("\b \b"));
+						tprintf(TEXT("\b \b"));
 					memset(cmd, 0, MAX_CMD_LEN + 1);
 					pos = 0;
 				}
@@ -333,14 +336,14 @@ void GCLI::MainLoop()
 			case 'K':	// 左
 				if (pos > 0)
 				{
-					_tprintf_s(TEXT("\b"));
+					tprintf(TEXT("\b"));
 					pos--;
 				}
 				break;
 			case 'M':	// 右
-				if (pos < _tcslen(cmd))
+				if (pos < tcslen(cmd))
 				{
-					_tprintf_s(TEXT("%c"), cmd[pos]);
+					tprintf(TEXT("%c"), cmd[pos]);
 					pos++;
 				}
 				break;
@@ -350,10 +353,10 @@ void GCLI::MainLoop()
 			if (!strTmp.empty())
 			{
 				while (pos--)
-					_tprintf_s(TEXT("\b \b"));
+					tprintf(TEXT("\b \b"));
 				memset(cmd, 0, MAX_CMD_LEN + 1);
-				_tcscpy_s(cmd, strTmp.length()+1, strTmp.c_str());
-				_tprintf_s(cmd);
+				tcscpy(cmd, strTmp.c_str());
+				tprintf(cmd);
 				pos = strTmp.length();
 			}
 			continue;
@@ -372,20 +375,20 @@ void GCLI::MainLoop()
 			// 命令超过了允许的最大长度
 			if (pos >= MAX_CMD_LEN)
 			{
-				_tprintf_s(TEXT("\ncommand too long !\n"));
+				tprintf(TEXT("\ncommand too long !\n"));
 				bInit = true;
 				continue;
 			}
-			if (_tcslen(cmd) > pos)
+			if (tcslen(cmd) > pos)
 			{
-				_tcscpy_s(cmd_tmp, _tcslen(cmd+pos)+1, cmd + pos);
-				_tcscpy_s(cmd + pos + 1, _tcslen(cmd_tmp)+1, cmd_tmp);
+				tcscpy(cmd_tmp, cmd + pos);
+				tcscpy(cmd + pos + 1, cmd_tmp);
 			}
 			cmd[pos] = ch;
-			_tprintf_s(TEXT("%s"), cmd + pos);
-			for (unsigned int ii = 0; ii < _tcslen(cmd + pos) - 1; ii++)
+			tprintf(TEXT("%s"), cmd + pos);
+			for (unsigned int ii = 0; ii < tcslen(cmd + pos) - 1; ii++)
 			{
-				_tprintf_s(TEXT("\b"));
+				tprintf(TEXT("\b"));
 			}
 			pos++;
 		}
@@ -468,18 +471,18 @@ void GCLI::ListAssociat(const tstring& cmd)
 			break;
 		if (++assCount == 1)
 		{
-			_tprintf_s(TEXT("\n"));
+			tprintf(TEXT("\n"));
 			strFirst = psh->strCMD;
 		}
 		if (assCount>1 && strFirst == psh->strCMD)
 			break;
 
-		_tprintf_s(TEXT("  %-10s  %s\n"), psh->strCMD.c_str(), psh->strToolTip.c_str());
+		tprintf(TEXT("  %-10s  %s\n"), psh->strCMD.c_str(), psh->strToolTip.c_str());
 	}
 	if (assCount>0)
 	{
-		_tprintf_s(m_prompt.c_str());
-		_tprintf_s(cmd.c_str());
+		tprintf(m_prompt.c_str());
+		tprintf(cmd.c_str());
 	}
 }
 
@@ -502,10 +505,10 @@ void GCLI::Exit()
 /********************************************************************/
 void GCLI::ShowHelp()
 {
-	_tprintf_s(TEXT("This is DEFAULT help info:\n"));
+	tprintf(TEXT("This is DEFAULT help info:\n"));
 	for each (auto var in m_handlerMap)
 	{
-		_tprintf_s(TEXT("  %-10s  %s\n"), var.first.c_str(), var.second.strToolTip.c_str());
+		tprintf(TEXT("  %-10s  %s\n"), var.first.c_str(), var.second.strToolTip.c_str());
 	}
 }
 

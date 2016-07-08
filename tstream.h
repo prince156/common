@@ -4,6 +4,7 @@
 #include <fstream>
 #include <regex>
 #include <cstdio>
+#include <time.h>
 #include "string.h"
 
 using namespace std;
@@ -27,7 +28,9 @@ namespace gcommon
 #define tsystem _wsystem
 
 #define ttoi _wtoi
+#define itot _itow
 
+#define tprintf wprintf
 #define vstprintf vswprintf
 #define stprintf swprintf
 #define tcslen wcslen 
@@ -41,6 +44,8 @@ namespace gcommon
 #define tcsncpy wcsncpy 
 #define tcsncmp wcsncmp
 
+// time.h
+#define tcsftime wcsftime
 
 
 	typedef wchar_t tchar;
@@ -78,7 +83,9 @@ namespace gcommon
 #define tsystem system
 
 #define ttoi atoi
+#define itot itoa
 
+#define tprintf printf
 #define vstprintf vsprintf
 #define stprintf sprintf
 #define tcslen strlen
@@ -91,6 +98,9 @@ namespace gcommon
 #define tcsrchr strrchr
 #define tcsncpy strncpy 
 #define tcsncmp strncmp
+
+	// time.h
+#define tcsftime strftime
 
 	typedef char tchar;
 	typedef string tstring;
@@ -110,5 +120,4 @@ namespace gcommon
 	typedef basic_regex<char> tregex;
 
 #endif
-
 }

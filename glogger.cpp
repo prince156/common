@@ -24,9 +24,6 @@ namespace gcommon
 
 	GLogger::GLogger()
 	{
-#ifdef __LINUX__
-		ios::sync_with_stdio(false);
-#endif
 		locale::global(locale(""));
 		tcout.imbue(locale(""));		
 
